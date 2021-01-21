@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30320.27
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smart_Tailoring_WebAPI", "Smart_Tailoring_WebAPI.csproj", "{AD18D8C2-444F-4A86-8924-6A548A9BA16C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD18D8C2-444F-4A86-8924-6A548A9BA16C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD18D8C2-444F-4A86-8924-6A548A9BA16C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD18D8C2-444F-4A86-8924-6A548A9BA16C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD18D8C2-444F-4A86-8924-6A548A9BA16C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {64435D8E-6605-48E9-BC37-DBA6D9846C81}
+	EndGlobalSection
+EndGlobal

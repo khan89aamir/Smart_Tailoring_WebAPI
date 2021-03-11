@@ -25,7 +25,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
             List<Customer> lstcustomers = new List<Customer>();
 
             ObjDAL.SetStoreProcedureData("LastChange", System.Data.SqlDbType.BigInt, lastChange);
-            DataSet dsCustomer = ObjDAL.ExecuteStoreProcedure_Get("[dbo].[SPR_Sync_Customer]");
+            DataSet dsCustomer = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".[dbo].[SPR_Sync_Customer]");
             if (dsCustomer != null && dsCustomer.Tables.Count > 0)
             {
                 DataTable dtCustomer = dsCustomer.Tables[0];
@@ -144,7 +144,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
             int isCodeExist = 1;
             int ActivationCode = 0;
             // keep generating the activation code if it is already exist in the system
-            while (isCodeExist > 0)
+            if (isCodeExist > 0)
             {
                 ActivationCode = RandomNumber(1000, 9999);
                 isCodeExist = ObjDAL.ExecuteScalarInt("SELECT COUNT(1) FROM " + strDBName + ".[dbo].[tblMobileActivation] WHERE ActivationCode='" + ActivationCode + "'");
@@ -159,15 +159,44 @@ namespace Smart_Tailoring_WebAPI.Controllers
 
         public Response ValidateLogin(UserManagement UserDetails)
         {
-            int count = ObjDAL.ExecuteScalarInt("SELECT COUNT(1) FROM " + strDBName + ".[dbo].[UserManagement] WITH(NOLOCK) WHERE UserName='" + UserDetails.UserName + "' AND Password='" + ObjDAL.Encrypt(UserDetails.Password, true) + "' AND ISNULL(ActiveStatus,1)=1");
-            if (count > 0)
+            int UserID = 0;
+            UserID = ObjDAL.ExecuteScalarInt("SELECT EmployeeID FROM " + strDBName + ".[dbo].[UserManagement] WITH(NOLOCK) WHERE UserName='" + UserDetails.UserName + "' AND Password='" + ObjDAL.Encrypt(UserDetails.Password, true) + "' AND ISNULL(ActiveStatus,1)=1");
+            if (UserID > 0)
             {
-                return new Response { Result = true, Message = "Validate Sucessfully!", Value = 1 };
+                UserDetails.UserID = UserID;
+                return new Response { Result = true, Message = "Validate Sucessfully!", Value = UserID };
             }
             else
             {
                 return new Response { Result = false, Message = "Invalid Login Details", Value = 0 };
             }
+        }
+
+        public IEnumerable<Employee> GetEmployeeDetails(int EmpID)
+        {
+            List<Employee> lstEmployees = new List<Employee>();
+
+            ObjDAL.SetStoreProcedureData("EmpID", System.Data.SqlDbType.Int, EmpID);
+            DataSet Employee = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".[dbo].[SPR_Get_Employee]");
+            if (Employee != null && Employee.Tables.Count > 0)
+            {
+                DataTable dtEmployee = Employee.Tables[0];
+
+                lstEmployees = (from DataRow dr in dtEmployee.Rows
+                                select new Employee()
+                                {
+                                    EmpID = Convert.ToInt32(dr["EmpID"]),
+                                    Name = dr["Name"].ToString(),
+                                    Address = dr["Address"].ToString(),
+                                    MobileNo = dr["MobileNo"].ToString(),
+                                    Gender = dr["Gender"].ToString(),
+                                    EmployeeCode = dr["EmployeeCode"].ToString(),
+                                    EmployeeType = dr["EmployeeType"].ToString(),
+                                    ActiveStatus = dr["ActiveStatus"].ToString(),
+                                    LastChange = Convert.ToInt32(dr["LastChange"])
+                                }).ToList();
+            }
+            return lstEmployees;
         }
     }
 }

@@ -6,61 +6,64 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Data;
+using System.Configuration;
+
 namespace Smart_Tailoring_WebAPI.Controllers
 {
     public class MastersController : ApiController
     {
+        // Instantiate random number generator.  
+        private readonly Random _random = new Random();
+        // Generates a random number within a range.  
+
+        string strDBName = ConfigurationManager.AppSettings["DBName"];
+
         clsCoreApp ObjDAL = new clsCoreApp();
+
         public IEnumerable<Customer> GetCustomerDetails(int lastChange)
         {
             List<Customer> lstcustomers = new List<Customer>();
 
             ObjDAL.SetStoreProcedureData("LastChange", System.Data.SqlDbType.BigInt, lastChange);
-            DataSet dsCustomer=  ObjDAL.ExecuteStoreProcedure_Get("[dbo].[SPR_Sync_Customer]");
-            if (dsCustomer!=null && dsCustomer.Tables.Count>0) 
+            DataSet dsCustomer = ObjDAL.ExecuteStoreProcedure_Get("[dbo].[SPR_Sync_Customer]");
+            if (dsCustomer != null && dsCustomer.Tables.Count > 0)
             {
                 DataTable dtCustomer = dsCustomer.Tables[0];
 
                 lstcustomers = (from DataRow dr in dtCustomer.Rows
-                               select new Customer()
-                               {
-                                   CustomerID = Convert.ToInt32(dr["CustomerID"]),
-                                   Name = dr["Name"].ToString(),
-                                   Address = dr["Address"].ToString(),
-                                   MobileNo = dr["MobileNo"].ToString(),
-                                   EmailID = dr["MobileNo"].ToString(),
-                                   LastChange= dr["LastChange"].ToString()
-                               }).ToList();
-
-               
+                                select new Customer()
+                                {
+                                    CustomerID = Convert.ToInt32(dr["CustomerID"]),
+                                    Name = dr["Name"].ToString(),
+                                    Address = dr["Address"].ToString(),
+                                    MobileNo = dr["MobileNo"].ToString(),
+                                    EmailID = dr["EmailID"].ToString(),
+                                    LastChange = dr["LastChange"].ToString()
+                                }).ToList();
             }
-
-
             return lstcustomers;
         }
+
         public List<Customer> Sync_CustomerData(List<Customer> lstCustomerList)
         {
             List<Customer> response = new List<Customer>();
-
             try
             {
                 for (int i = 0; i < lstCustomerList.Count; i++)
                 {
                     // check if customer ID exists then update 
-
-                    int IsExist = ObjDAL.ExecuteScalarInt("select count(1) from  dbo.CustomerMaster where CustomerID=" + lstCustomerList[i].CustomerID);
+                    int IsExist = ObjDAL.ExecuteScalarInt("SELECT COUNT(1) FROM " + strDBName + ".dbo.CustomerMaster WITH(NOLOCK) WHERE CustomerID=" + lstCustomerList[i].CustomerID);
                     if (IsExist > 0)
                     {
-                      
                         ObjDAL.UpdateColumnData("Name", SqlDbType.NVarChar, lstCustomerList[i].Name);
                         ObjDAL.UpdateColumnData("Address", SqlDbType.NVarChar, lstCustomerList[i].Address);
-                        ObjDAL.UpdateColumnData("MobileNo", SqlDbType.NVarChar, lstCustomerList[i].MobileNo);
-                        ObjDAL.UpdateColumnData("EmailID", SqlDbType.NVarChar, lstCustomerList[i].EmailID);
+                        ObjDAL.UpdateColumnData("MobileNo", SqlDbType.VarChar, lstCustomerList[i].MobileNo);
+                        ObjDAL.UpdateColumnData("EmailID", SqlDbType.VarChar, lstCustomerList[i].EmailID);
                         ObjDAL.UpdateColumnData("UpdatedBy", SqlDbType.Int, 0);
 
-                        ObjDAL.UpdateData(" dbo.CustomerMaster", "CustomerID="+ lstCustomerList[i].CustomerID);
+                        ObjDAL.UpdateData(" dbo.CustomerMaster", "CustomerID=" + lstCustomerList[i].CustomerID);
 
-                        int LastChangeID = ObjDAL.ExecuteScalarInt("Select Convert(int,LastChange) from dbo.CustomerMaster where CustomerID=" + lstCustomerList[i].CustomerID);
+                        int LastChangeID = ObjDAL.ExecuteScalarInt("SELECT CONVERT(INT,LASTCHANGE) FROM " + strDBName + ".dbo.CustomerMaster WITH(NOLOCK) WHERE CustomerID=" + lstCustomerList[i].CustomerID);
 
                         // Make a new customer so that data can be updated back to mobile device.
                         response.Add(new Customer
@@ -80,13 +83,13 @@ namespace Smart_Tailoring_WebAPI.Controllers
 
                         ObjDAL.SetColumnData("Name", SqlDbType.NVarChar, lstCustomerList[i].Name);
                         ObjDAL.SetColumnData("Address", SqlDbType.NVarChar, lstCustomerList[i].Address);
-                        ObjDAL.SetColumnData("MobileNo", SqlDbType.NVarChar, lstCustomerList[i].MobileNo);
-                        ObjDAL.SetColumnData("EmailID", SqlDbType.NVarChar, lstCustomerList[i].EmailID);
+                        ObjDAL.SetColumnData("MobileNo", SqlDbType.VarChar, lstCustomerList[i].MobileNo);
+                        ObjDAL.SetColumnData("EmailID", SqlDbType.VarChar, lstCustomerList[i].EmailID);
                         ObjDAL.SetColumnData("CreatedBy", SqlDbType.Int, 0);
 
-                        int CustID =  ObjDAL.InsertData("dbo.CustomerMaster",true);
+                        int CustID = ObjDAL.InsertData("dbo.CustomerMaster", true);
 
-                       int LastChangeID= ObjDAL.ExecuteScalarInt("Select Convert(int,LastChange) from dbo.CustomerMaster where CustomerID=" + CustID);
+                        int LastChangeID = ObjDAL.ExecuteScalarInt("SELECT CONVERT(INT,LASTCHANGE) FROM " + strDBName + ".dbo.CustomerMaster WITH(NOLOCK) WHERE CustomerID=" + CustID);
 
                         // Make a new customer so that data can be updated back to mobile device.
                         response.Add(new Customer
@@ -100,62 +103,51 @@ namespace Smart_Tailoring_WebAPI.Controllers
                             MobileNo = lstCustomerList[i].MobileNo
                         });
                     }
-
                 }
-              
-
             }
             catch (Exception ex)
             {
-             
+
             }
-
-
             return response;
         }
 
         // for checking connectivity
         public Response GetStatus()
         {
-            return new Response { Result = true,Message="Connection OK", Value=1 };
+            return new Response { Result = true, Message = "Connection OK", Value = 1 };
         }
-        // Instantiate random number generator.  
-        private readonly Random _random = new Random();
-        // Generates a random number within a range.      
+
         public int RandomNumber(int min, int max)
         {
             return _random.Next(min, max);
         }
 
-        public Response ValidateActivation(ActivationDetails activationDetails )
+        public Response ValidateActivation(ActivationDetails activationDetails)
         {
-         
-             int count= ObjDAL.ExecuteScalarInt("select count(*) from [TAILORING_01].[dbo].[tblMobileActivation] where ActivationCode='" + activationDetails.ActivationCode + "' AND SerialNumber='"+ activationDetails.DeviceSerialNumber+ "'");
-            if (count>0)
+            int count = ObjDAL.ExecuteScalarInt("SELECT COUNT(1) FROM " + strDBName + ".[dbo].[tblMobileActivation] WITH(NOLOCK) WHERE ActivationCode='" + activationDetails.ActivationCode + "' AND SerialNumber='" + activationDetails.DeviceSerialNumber + "'");
+            if (count > 0)
             {
-                return new Response { Result = true, Message = "Application has been activated!", Value = 0 };
+                return new Response { Result = true, Message = "Application has been activated!", Value = 1 };
             }
             else
             {
                 return new Response { Result = false, Message = "Invalid Activation Code", Value = 0 };
             }
-
         }
+
         public Response ProcessActivationRequest(ActivationDetails activationDetails)
         {
             // delete activation if alerady exsit
+            ObjDAL.ExecuteNonQuery("DELETE FROM " + strDBName + ".[dbo].[tblMobileActivation] WHERE SerialNumber='" + activationDetails.DeviceSerialNumber + "'");
 
-            ObjDAL.ExecuteNonQuery("delete [TAILORING_01].[dbo].[tblMobileActivation] where SerialNumber='" + activationDetails.DeviceSerialNumber + "'");
-            
             int isCodeExist = 1;
             int ActivationCode = 0;
             // keep generating the activation code if it is already exist in the system
-            while (isCodeExist>0)
+            while (isCodeExist > 0)
             {
-                 ActivationCode = RandomNumber(1000, 9999);
-                 isCodeExist= ObjDAL.ExecuteScalarInt("select count(*) from [TAILORING_01].[dbo].[tblMobileActivation] where ActivationCode='" + ActivationCode + "'");
-
-
+                ActivationCode = RandomNumber(1000, 9999);
+                isCodeExist = ObjDAL.ExecuteScalarInt("SELECT COUNT(1) FROM " + strDBName + ".[dbo].[tblMobileActivation] WHERE ActivationCode='" + ActivationCode + "'");
             }
 
             ObjDAL.SetStoreProcedureData("SerialNumber", System.Data.SqlDbType.NVarChar, activationDetails.DeviceSerialNumber);
@@ -164,7 +156,18 @@ namespace Smart_Tailoring_WebAPI.Controllers
 
             return new Response { Result = true, Message = "ActivationSuccess", Value = ActivationCode };
         }
-       
 
+        public Response ValidateLogin(UserManagement UserDetails)
+        {
+            int count = ObjDAL.ExecuteScalarInt("SELECT COUNT(1) FROM " + strDBName + ".[dbo].[UserManagement] WITH(NOLOCK) WHERE UserName='" + UserDetails.UserName + "' AND Password='" + ObjDAL.Encrypt(UserDetails.Password, true) + "' AND ISNULL(ActiveStatus,1)=1");
+            if (count > 0)
+            {
+                return new Response { Result = true, Message = "Validate Sucessfully!", Value = 1 };
+            }
+            else
+            {
+                return new Response { Result = false, Message = "Invalid Login Details", Value = 0 };
+            }
+        }
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Security.Cryptography;
+using System.Text;
 
 /// <summary>
 /// Summary description for clsCoreApp
@@ -489,9 +491,88 @@ public  class clsCoreApp
         }
         catch (Exception ex)
         {
-           
             ResetData();
             return false;
         }
+    }
+
+    /// <summary>
+    /// Encrypt a string using dual encryption method. Return a encrypted  Text
+    /// </summary>
+    /// <param name="toEncrypt">string to be encrypted</param>
+    /// <param name="useHashing">use hashing? send to for extra security</param>
+    /// <returns></returns>
+    public string Encrypt(string toEncrypt, bool useHashing)
+    {
+        byte[] keyArray;
+        byte[] toEncryptArray = UTF8Encoding.UTF8.GetBytes(toEncrypt);
+
+        string key = "abdulmateen1989";
+
+        if (useHashing)
+        {
+            MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
+            keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+            hashmd5.Clear();
+        }
+        else
+            keyArray = UTF8Encoding.UTF8.GetBytes(key);
+
+        TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+        tdes.Key = keyArray;
+        tdes.Mode = CipherMode.ECB;
+        tdes.Padding = PaddingMode.PKCS7;
+
+        ICryptoTransform cTransform = tdes.CreateEncryptor();
+        byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
+        tdes.Clear();
+        return Convert.ToBase64String(resultArray, 0, resultArray.Length);
+    }
+
+    /// <summary>
+    /// DeCrypt a string using dual encryption method. Return a DeCrypted clear string
+    /// If you had encrypted a string by passing true to UseHashing parameter then you must pass true 
+    /// while decrypting the string.
+    /// </summary>
+    /// <param name="cipherString">encrypted string</param>
+    /// <param name="useHashing">Did you use hashing to encrypt this data? pass true if yes</param>
+    /// <returns></returns>
+    public string Decrypt(string cipherString, bool useHashing)
+    {
+        string strDecryptString = "";
+        try
+        {
+            byte[] keyArray;
+            byte[] toEncryptArray = Convert.FromBase64String(cipherString);
+
+            //Get your key from config file to open the lock!
+            string key = "abdulmateen1989";
+
+            if (useHashing)
+            {
+                MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
+                keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                hashmd5.Clear();
+            }
+            else
+                keyArray = UTF8Encoding.UTF8.GetBytes(key);
+
+            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+            tdes.Key = keyArray;
+            tdes.Mode = CipherMode.ECB;
+            tdes.Padding = PaddingMode.PKCS7;
+
+            ICryptoTransform cTransform = tdes.CreateDecryptor();
+            byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
+
+            tdes.Clear();
+            strDecryptString = UTF8Encoding.UTF8.GetString(resultArray);
+            return strDecryptString;
+        }
+        catch (FormatException)
+        {
+            strDecryptString = null;
+        }
+        return strDecryptString;
     }
 }

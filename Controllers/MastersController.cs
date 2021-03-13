@@ -60,8 +60,9 @@ namespace Smart_Tailoring_WebAPI.Controllers
                         ObjDAL.UpdateColumnData("MobileNo", SqlDbType.VarChar, lstCustomerList[i].MobileNo);
                         ObjDAL.UpdateColumnData("EmailID", SqlDbType.VarChar, lstCustomerList[i].EmailID);
                         ObjDAL.UpdateColumnData("UpdatedBy", SqlDbType.Int, 0);
+                        ObjDAL.UpdateColumnData("UpdatedOn", SqlDbType.DateTime, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
-                        ObjDAL.UpdateData(" dbo.CustomerMaster", "CustomerID=" + lstCustomerList[i].CustomerID);
+                        ObjDAL.UpdateData(strDBName + ".dbo.CustomerMaster", "CustomerID=" + lstCustomerList[i].CustomerID);
 
                         int LastChangeID = ObjDAL.ExecuteScalarInt("SELECT CONVERT(INT,LASTCHANGE) FROM " + strDBName + ".dbo.CustomerMaster WITH(NOLOCK) WHERE CustomerID=" + lstCustomerList[i].CustomerID);
 
@@ -87,7 +88,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
                         ObjDAL.SetColumnData("EmailID", SqlDbType.VarChar, lstCustomerList[i].EmailID);
                         ObjDAL.SetColumnData("CreatedBy", SqlDbType.Int, 0);
 
-                        int CustID = ObjDAL.InsertData("dbo.CustomerMaster", true);
+                        int CustID = ObjDAL.InsertData(strDBName + ".dbo.CustomerMaster", true);
 
                         int LastChangeID = ObjDAL.ExecuteScalarInt("SELECT CONVERT(INT,LASTCHANGE) FROM " + strDBName + ".dbo.CustomerMaster WITH(NOLOCK) WHERE CustomerID=" + CustID);
 

@@ -208,7 +208,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
         {
             // delete activation if alerady exsit
             ObjDAL.ExecuteNonQuery("DELETE FROM " + strDBName + ".[dbo].[tblMobileActivation] WHERE SerialNumber='" + activationDetails.DeviceSerialNumber + "'");
-
+            
             int isCodeExist = 1;
             int ActivationCode = 0;
             // keep generating the activation code if it is already exist in the system
@@ -265,6 +265,38 @@ namespace Smart_Tailoring_WebAPI.Controllers
                                 }).ToList();
             }
             return lstEmployees;
+        }
+        public IEnumerable<clsMeasurment> GetGarmentMasterMeasurement(int GarmentID)
+        {
+            List<clsMeasurment> lstMeasurment = new List<clsMeasurment>();
+            try
+            {
+                DataTable dtMeasurement = new DataTable();
+                ObjDAL.SetStoreProcedureData("GarmentID", SqlDbType.Int, GarmentID);
+                DataSet ds = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".dbo.SPR_Get_GarmentMeasurement");
+                if (ds.Tables.Count > 0)
+                {
+                    dtMeasurement = ds.Tables[0];
+
+                    lstMeasurment = (from DataRow dr in dtMeasurement.Rows
+                                     select new clsMeasurment()
+                                     {
+                                         MeasurmentID = Convert.ToInt32(dr["MeasurementID"]),
+                                         MeasurmentName = dr["MeasurementName"].ToString(),
+                                         IsMendatory = Convert.ToBoolean(dr["IsMandatory"])
+
+                                     }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+
+              
+            }
+           
+              
+
+            return lstMeasurment;
         }
     }
 }

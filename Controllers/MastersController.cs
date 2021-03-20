@@ -283,7 +283,8 @@ namespace Smart_Tailoring_WebAPI.Controllers
                                      {
                                          MeasurmentID = Convert.ToInt32(dr["MeasurementID"]),
                                          MeasurmentName = dr["MeasurementName"].ToString(),
-                                         IsMendatory = Convert.ToBoolean(dr["IsMandatory"])
+                                         IsMendatory = Convert.ToBoolean(dr["IsMandatory"]),
+                                         value = 0
 
                                      }).ToList();
                 }

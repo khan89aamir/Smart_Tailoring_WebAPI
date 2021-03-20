@@ -11,8 +11,6 @@ using System.Text;
 /// </summary>
 public  class clsCoreApp 
 {
-  
-   
     public string strErrorText = "";
     private int Counter = 0;
     private string strColumns;
@@ -50,7 +48,6 @@ public  class clsCoreApp
             return false;
         }
     }
-
     int MyValue = 0;
     public void SetValue(int value)
     {
@@ -60,7 +57,6 @@ public  class clsCoreApp
     public int GetValue()
     {
         return MyValue;
-
     }
 
     public bool SetStoreProcedureData(string strParamterName, SqlDbType DataType, object Value, ParamType parameterType = ParamType.Input)

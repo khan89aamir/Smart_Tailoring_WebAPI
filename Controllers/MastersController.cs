@@ -44,6 +44,31 @@ namespace Smart_Tailoring_WebAPI.Controllers
             return lstcustomers;
         }
 
+        public IEnumerable<UserManagement> GetUserManagementDetails(int lastChange)
+        {
+            List<UserManagement> lstusers = new List<UserManagement>();
+
+            ObjDAL.SetStoreProcedureData("LastChange", System.Data.SqlDbType.BigInt, lastChange);
+            DataSet dsUser = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".[dbo].[SPR_Sync_UserManagement]");
+            if (dsUser != null && dsUser.Tables.Count > 0)
+            {
+                DataTable dtUser = dsUser.Tables[0];
+
+                lstusers = (from DataRow dr in dtUser.Rows
+                                select new UserManagement()
+                                {
+                                    UserID = Convert.ToInt32(dr["UserID"]),
+                                    EmployeeID = Convert.ToInt32(dr["EmployeeID"]),
+                                    ActiveStatus = Convert.ToInt32(dr["ActiveStatus"]),
+                                    UserName = dr["UserName"].ToString(),
+                                    Password = dr["Password"].ToString(),
+                                    EmailID = dr["EmailID"].ToString(),
+                                    LastChange = Convert.ToInt32(dr["LastChange"])
+                                }).ToList();
+            }
+            return lstusers;
+        }
+
         public List<Customer> Sync_CustomerData(List<Customer> lstCustomerList)
         {
             List<Customer> response = new List<Customer>();
@@ -60,8 +85,9 @@ namespace Smart_Tailoring_WebAPI.Controllers
                         ObjDAL.UpdateColumnData("MobileNo", SqlDbType.VarChar, lstCustomerList[i].MobileNo);
                         ObjDAL.UpdateColumnData("EmailID", SqlDbType.VarChar, lstCustomerList[i].EmailID);
                         ObjDAL.UpdateColumnData("UpdatedBy", SqlDbType.Int, 0);
+                        ObjDAL.UpdateColumnData("UpdatedOn", SqlDbType.DateTime, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
-                        ObjDAL.UpdateData(" dbo.CustomerMaster", "CustomerID=" + lstCustomerList[i].CustomerID);
+                        ObjDAL.UpdateData(strDBName + ".dbo.CustomerMaster", "CustomerID=" + lstCustomerList[i].CustomerID);
 
                         int LastChangeID = ObjDAL.ExecuteScalarInt("SELECT CONVERT(INT,LASTCHANGE) FROM " + strDBName + ".dbo.CustomerMaster WITH(NOLOCK) WHERE CustomerID=" + lstCustomerList[i].CustomerID);
 
@@ -87,7 +113,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
                         ObjDAL.SetColumnData("EmailID", SqlDbType.VarChar, lstCustomerList[i].EmailID);
                         ObjDAL.SetColumnData("CreatedBy", SqlDbType.Int, 0);
 
-                        int CustID = ObjDAL.InsertData("dbo.CustomerMaster", true);
+                        int CustID = ObjDAL.InsertData(strDBName + ".dbo.CustomerMaster", true);
 
                         int LastChangeID = ObjDAL.ExecuteScalarInt("SELECT CONVERT(INT,LASTCHANGE) FROM " + strDBName + ".dbo.CustomerMaster WITH(NOLOCK) WHERE CustomerID=" + CustID);
 
@@ -112,6 +138,48 @@ namespace Smart_Tailoring_WebAPI.Controllers
             return response;
         }
 
+        public List<UserManagement> Sync_UserManagementData(List<UserManagement> lstUserList)
+        {
+            List<UserManagement> response = new List<UserManagement>();
+            try
+            {
+                for (int i = 0; i < lstUserList.Count; i++)
+                {
+                    // check if customer ID exists then update 
+                    int IsExist = ObjDAL.ExecuteScalarInt("SELECT COUNT(1) FROM " + strDBName + ".dbo.UserManagement WITH(NOLOCK) WHERE UserID=" + lstUserList[i].UserID);
+                    if (IsExist > 0)
+                    {
+                        ObjDAL.UpdateColumnData("UserName", SqlDbType.NVarChar, lstUserList[i].UserName);
+                        ObjDAL.UpdateColumnData("Password", SqlDbType.NVarChar, lstUserList[i].Password);
+                        ObjDAL.UpdateColumnData("EmailID", SqlDbType.VarChar, lstUserList[i].EmailID);
+                        ObjDAL.UpdateColumnData("ActiveStatus", SqlDbType.VarChar, lstUserList[i].ActiveStatus);
+                        ObjDAL.UpdateColumnData("UpdatedBy", SqlDbType.Int, 0);
+                        ObjDAL.UpdateColumnData("UpdatedOn", SqlDbType.DateTime, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                        ObjDAL.UpdateData(strDBName + ".dbo.UserManagement", "UserID=" + lstUserList[i].UserID);
+
+                        int LastChangeID = ObjDAL.ExecuteScalarInt("SELECT CONVERT(INT,LASTCHANGE) FROM " + strDBName + ".dbo.UserManagement WITH(NOLOCK) WHERE UserID=" + lstUserList[i].UserID);
+
+                        // Make a new customer so that data can be updated back to mobile device.
+                        response.Add(new UserManagement
+                        {
+                            UserID = lstUserList[i].UserID,
+                            UserName = lstUserList[i].UserName,
+                            EmailID = lstUserList[i].EmailID,
+                            ActiveStatus = lstUserList[i].ActiveStatus,
+                            LastChange = LastChangeID,
+                            MB_UserID = lstUserList[i].MB_UserID
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return response;
+        }
+
         // for checking connectivity
         public Response GetStatus()
         {
@@ -122,7 +190,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
         {
             return _random.Next(min, max);
         }
-
+        
         public Response ValidateActivation(ActivationDetails activationDetails)
         {
             int count = ObjDAL.ExecuteScalarInt("SELECT COUNT(1) FROM " + strDBName + ".[dbo].[tblMobileActivation] WITH(NOLOCK) WHERE ActivationCode='" + activationDetails.ActivationCode + "' AND SerialNumber='" + activationDetails.DeviceSerialNumber + "'");
@@ -144,7 +212,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
             int isCodeExist = 1;
             int ActivationCode = 0;
             // keep generating the activation code if it is already exist in the system
-            if (isCodeExist > 0)
+            while (isCodeExist > 0) // Need to Generate code from SQL
             {
                 ActivationCode = RandomNumber(1000, 9999);
                 isCodeExist = ObjDAL.ExecuteScalarInt("SELECT COUNT(1) FROM " + strDBName + ".[dbo].[tblMobileActivation] WHERE ActivationCode='" + ActivationCode + "'");

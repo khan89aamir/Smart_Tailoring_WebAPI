@@ -55,16 +55,16 @@ namespace Smart_Tailoring_WebAPI.Controllers
                 DataTable dtUser = dsUser.Tables[0];
 
                 lstusers = (from DataRow dr in dtUser.Rows
-                                select new UserManagement()
-                                {
-                                    UserID = Convert.ToInt32(dr["UserID"]),
-                                    EmployeeID = Convert.ToInt32(dr["EmployeeID"]),
-                                    ActiveStatus = Convert.ToInt32(dr["ActiveStatus"]),
-                                    UserName = dr["UserName"].ToString(),
-                                    Password = dr["Password"].ToString(),
-                                    EmailID = dr["EmailID"].ToString(),
-                                    LastChange = Convert.ToInt32(dr["LastChange"])
-                                }).ToList();
+                            select new UserManagement()
+                            {
+                                UserID = Convert.ToInt32(dr["UserID"]),
+                                EmployeeID = Convert.ToInt32(dr["EmployeeID"]),
+                                ActiveStatus = Convert.ToInt32(dr["ActiveStatus"]),
+                                UserName = dr["UserName"].ToString(),
+                                Password = dr["Password"].ToString(),
+                                EmailID = dr["EmailID"].ToString(),
+                                LastChange = Convert.ToInt32(dr["LastChange"])
+                            }).ToList();
             }
             return lstusers;
         }
@@ -190,7 +190,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
         {
             return _random.Next(min, max);
         }
-        
+
         public Response ValidateActivation(ActivationDetails activationDetails)
         {
             int count = ObjDAL.ExecuteScalarInt("SELECT COUNT(1) FROM " + strDBName + ".[dbo].[tblMobileActivation] WITH(NOLOCK) WHERE ActivationCode='" + activationDetails.ActivationCode + "' AND SerialNumber='" + activationDetails.DeviceSerialNumber + "'");
@@ -208,7 +208,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
         {
             // delete activation if alerady exsit
             ObjDAL.ExecuteNonQuery("DELETE FROM " + strDBName + ".[dbo].[tblMobileActivation] WHERE SerialNumber='" + activationDetails.DeviceSerialNumber + "'");
-            
+
             int isCodeExist = 1;
             int ActivationCode = 0;
             // keep generating the activation code if it is already exist in the system
@@ -220,7 +220,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
 
             ObjDAL.SetStoreProcedureData("SerialNumber", System.Data.SqlDbType.NVarChar, activationDetails.DeviceSerialNumber);
             ObjDAL.SetStoreProcedureData("ActivationCode", System.Data.SqlDbType.NVarChar, ActivationCode);
-            ObjDAL.ExecuteStoreProcedure_DML("dbo.SPR_Insert_MobileActivation");
+            ObjDAL.ExecuteStoreProcedure_DML(strDBName + ".dbo.SPR_Insert_MobileActivation");
 
             return new Response { Result = true, Message = "ActivationSuccess", Value = ActivationCode };
         }
@@ -266,38 +266,6 @@ namespace Smart_Tailoring_WebAPI.Controllers
             }
             return lstEmployees;
         }
-        public IEnumerable<clsMeasurment> GetGarmentMasterMeasurement(int GarmentID)
-        {
-            List<clsMeasurment> lstMeasurment = new List<clsMeasurment>();
-            try
-            {
-                DataTable dtMeasurement = new DataTable();
-                ObjDAL.SetStoreProcedureData("GarmentID", SqlDbType.Int, GarmentID);
-                DataSet ds = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".dbo.SPR_Get_GarmentMeasurement");
-                if (ds.Tables.Count > 0)
-                {
-                    dtMeasurement = ds.Tables[0];
 
-                    lstMeasurment = (from DataRow dr in dtMeasurement.Rows
-                                     select new clsMeasurment()
-                                     {
-                                         MeasurmentID = Convert.ToInt32(dr["MeasurementID"]),
-                                         MeasurmentName = dr["MeasurementName"].ToString(),
-                                         IsMendatory = Convert.ToBoolean(dr["IsMandatory"]),
-                                         value = 0
-
-                                     }).ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-
-              
-            }
-           
-              
-
-            return lstMeasurment;
-        }
     }
 }

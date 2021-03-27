@@ -151,6 +151,43 @@ namespace Smart_Tailoring_WebAPI.Controllers
             return lstFitType;
         }
 
+        public IEnumerable<clsGarmentRate> GetGarmentRate(int GarmentID,int ServiceType=0)
+        {
+            //GarmentID = 0
+            //ServiceType = 2 and it will return all garments rate data
+            List<clsGarmentRate> lstGarmentRate = new List<clsGarmentRate>();
+            try
+            {
+                DataTable dtGarmentRate = new DataTable();
+                ObjDAL.SetStoreProcedureData("GarmentID", SqlDbType.Int, GarmentID, clsCoreApp.ParamType.Input);
+                ObjDAL.SetStoreProcedureData("OrderType", SqlDbType.Int, ServiceType, clsCoreApp.ParamType.Input);
+                DataSet ds = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".dbo.SPR_Get_Product_Rate");
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    dtGarmentRate = ds.Tables[0];
+
+                    lstGarmentRate = (from DataRow dr in dtGarmentRate.Rows
+                                  select new clsGarmentRate()
+                                  {
+                                      GarmentRateID = Convert.ToInt32(dr["GarmentRateID"]),
+                                      GarmentID = Convert.ToInt32(dr["GarmentID"]),
+                                      GarmentCode = dr["GarmentCode"].ToString(),
+                                      GarmentName = dr["GarmentName"].ToString(),
+                                      GarmentCodeName = dr["GarmentCodeName"].ToString(),
+                                      GarmentType = dr["GarmentType"].ToString(),
+                                      OrderType = dr["OrderType"].ToString(),
+                                      Rate = Convert.ToDouble(dr["Rate"]),
+                                      LastChange = Convert.ToInt32(dr["LastChange"])
+                                  }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return lstGarmentRate;
+        }
+
         public DataSet CopyGarmentDetails_LastOrder(int CustomerID, int GarmentID, int MasterGarmentID)
         {
             ObjDAL.SetStoreProcedureData("CustomerID", SqlDbType.Int, CustomerID, clsCoreApp.ParamType.Input);

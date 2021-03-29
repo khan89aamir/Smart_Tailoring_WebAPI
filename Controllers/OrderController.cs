@@ -34,7 +34,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
                                          MeasurmentID = Convert.ToInt32(dr["MeasurementID"]),
                                          MeasurmentName = dr["MeasurementName"].ToString(),
                                          IsMendatory = Convert.ToBoolean(dr["IsMandatory"]),
-                                         value = 0
+                                         value = "0"
                                      }).ToList();
                 }
             }
@@ -84,11 +84,11 @@ namespace Smart_Tailoring_WebAPI.Controllers
                     dtBodyPosture = ds.Tables[0];
 
                     lstBodyPosture = (from DataRow dr in dtBodyPosture.Rows
-                                select new clsBodyPosture()
-                                {
-                                    BodyPostureID = Convert.ToInt32(dr["BodyPostureID"]),
-                                    BodyPostureType = dr["BodyPostureType"].ToString()
-                                }).ToList();
+                                      select new clsBodyPosture()
+                                      {
+                                          BodyPostureID = Convert.ToInt32(dr["BodyPostureID"]),
+                                          BodyPostureType = dr["BodyPostureType"].ToString()
+                                      }).ToList();
                 }
             }
             catch (Exception ex)
@@ -151,7 +151,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
             return lstFitType;
         }
 
-        public IEnumerable<clsGarmentRate> GetGarmentRate(int GarmentID,int ServiceType=0)
+        public IEnumerable<clsGarmentRate> GetGarmentRate(int GarmentID, int ServiceType = 0)
         {
             //GarmentID = 0
             //ServiceType = 2 and it will return all garments rate data
@@ -167,18 +167,18 @@ namespace Smart_Tailoring_WebAPI.Controllers
                     dtGarmentRate = ds.Tables[0];
 
                     lstGarmentRate = (from DataRow dr in dtGarmentRate.Rows
-                                  select new clsGarmentRate()
-                                  {
-                                      GarmentRateID = Convert.ToInt32(dr["GarmentRateID"]),
-                                      GarmentID = Convert.ToInt32(dr["GarmentID"]),
-                                      GarmentCode = dr["GarmentCode"].ToString(),
-                                      GarmentName = dr["GarmentName"].ToString(),
-                                      GarmentCodeName = dr["GarmentCodeName"].ToString(),
-                                      GarmentType = dr["GarmentType"].ToString(),
-                                      OrderType = dr["OrderType"].ToString(),
-                                      Rate = Convert.ToDouble(dr["Rate"]),
-                                      LastChange = Convert.ToInt32(dr["LastChange"])
-                                  }).ToList();
+                                      select new clsGarmentRate()
+                                      {
+                                          GarmentRateID = Convert.ToInt32(dr["GarmentRateID"]),
+                                          GarmentID = Convert.ToInt32(dr["GarmentID"]),
+                                          GarmentCode = dr["GarmentCode"].ToString(),
+                                          GarmentName = dr["GarmentName"].ToString(),
+                                          GarmentCodeName = dr["GarmentCodeName"].ToString(),
+                                          GarmentType = dr["GarmentType"].ToString(),
+                                          OrderType = dr["OrderType"].ToString(),
+                                          Rate = Convert.ToDouble(dr["Rate"]),
+                                          LastChange = Convert.ToInt32(dr["LastChange"])
+                                      }).ToList();
                 }
             }
             catch (Exception ex)
@@ -186,6 +186,35 @@ namespace Smart_Tailoring_WebAPI.Controllers
 
             }
             return lstGarmentRate;
+        }
+
+        public IEnumerable<GarmentList> GetGarmentList(int GarmentID = 0)
+        {
+            //GarmentID = 0 return all garments
+            List<GarmentList> lstGarmentList = new List<GarmentList>();
+            try
+            {
+                DataTable dtGarmentList = new DataTable();
+                ObjDAL.SetStoreProcedureData("GarmentID", SqlDbType.Int, GarmentID, clsCoreApp.ParamType.Input);
+                DataSet ds = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".dbo.SPR_Get_Product");
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    dtGarmentList = ds.Tables[0];
+
+                    lstGarmentList = (from DataRow dr in dtGarmentList.Rows
+                                      select new GarmentList()
+                                      {
+                                          GarmentID = Convert.ToInt32(dr["GarmentID"]),
+                                          Name = dr["GarmentName"].ToString(),
+                                          ImageURL = dr["Photo1"].ToString(),
+                                      }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return lstGarmentList;
         }
 
         public DataSet CopyGarmentDetails_LastOrder(int CustomerID, int GarmentID, int MasterGarmentID)
@@ -225,6 +254,21 @@ namespace Smart_Tailoring_WebAPI.Controllers
                 dtcommon = dscommon.Tables[0];
             }
             return dtcommon;
+        }
+
+        [HttpPost]
+        public Response GetMeasurmentStyle(System.Collections.ArrayList paramList)
+        {
+            if (paramList.Count > 0)
+            {
+                clsMeasurment Measurment = Newtonsoft.Json.JsonConvert.DeserializeObject<clsMeasurment>(paramList[0].ToString());
+                clsStyle Style = Newtonsoft.Json.JsonConvert.DeserializeObject<clsStyle>(paramList[1].ToString());
+                return new Response { Result = true, Message = "Connection OK", Value = 1 };
+            }
+            else
+            {
+                return new Response { Result = false, Message = "Failed", Value = 0 };
+            }
         }
     }
 }

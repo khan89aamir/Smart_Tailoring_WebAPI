@@ -11,6 +11,6 @@ namespace Smart_Tailoring_WebAPI.Models
         public string MeasurmentName { get; set; }
         public bool IsMendatory { get; set; }
 
-        public decimal value { get; set; }
+        public string value { get; set; }
     }
 }

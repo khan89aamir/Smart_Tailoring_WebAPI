@@ -257,12 +257,33 @@ namespace Smart_Tailoring_WebAPI.Controllers
         }
 
         [HttpPost]
-        public Response GetMeasurmentStyle(System.Collections.ArrayList paramList)
+        public Response SavedSalesOrder(System.Collections.ArrayList paramList)
         {
             if (paramList.Count > 0)
             {
-                clsMeasurment Measurment = Newtonsoft.Json.JsonConvert.DeserializeObject<clsMeasurment>(paramList[0].ToString());
-                clsStyle Style = Newtonsoft.Json.JsonConvert.DeserializeObject<clsStyle>(paramList[1].ToString());
+                SalesOrder salesorder = Newtonsoft.Json.JsonConvert.DeserializeObject<SalesOrder>(paramList[0].ToString());
+
+                return new Response { Result = true, Message = "Connection OK", Value = 1 };
+            }
+            else
+            {
+                return new Response { Result = false, Message = "Failed", Value = 0 };
+            }
+        }
+
+        [HttpPost]
+        public Response SavedSalesOrderDetails(System.Collections.ArrayList paramList)
+        {
+            if (paramList.Count > 0)
+            {
+                CustomerMeasurement Measurment = Newtonsoft.Json.JsonConvert.DeserializeObject<CustomerMeasurement>(paramList[0].ToString());
+
+                CustomerStyle Style = Newtonsoft.Json.JsonConvert.DeserializeObject<CustomerStyle>(paramList[1].ToString());
+
+                CustomerBodyPosture Posture = Newtonsoft.Json.JsonConvert.DeserializeObject<CustomerBodyPosture>(paramList[2].ToString());
+
+                SalesOrderDetails OrderDetails = Newtonsoft.Json.JsonConvert.DeserializeObject<SalesOrderDetails>(paramList[3].ToString());
+
                 return new Response { Result = true, Message = "Connection OK", Value = 1 };
             }
             else

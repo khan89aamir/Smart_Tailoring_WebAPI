@@ -16,6 +16,26 @@ namespace Smart_Tailoring_WebAPI.Controllers
         string strDBName = ConfigurationManager.AppSettings["DBName"];
         clsCoreApp ObjDAL = new clsCoreApp();
 
+        private string[] ExceptionLog(Exception ex, bool IsAutoLog = true)
+        {
+            string[] strError = new string[3];
+
+            string strUrl = ControllerContext.Request.RequestUri.AbsoluteUri;
+
+            string strControllername = ControllerContext.Request.RequestUri.Segments[2].ToString();
+            string strMethod = ((System.Web.Http.ApiController)ControllerContext.Controller).Url.Request.RequestUri.Segments[3];
+
+            if (IsAutoLog)
+                ObjDAL.WriteBackupLog(strControllername.Replace("/", "Controller"), strMethod, strUrl, ex.ToString());
+            else
+            {
+                strError[0] = strControllername;
+                strError[1] = strMethod;
+                strError[2] = strUrl;
+            }
+            return strError;
+        }
+
         public IEnumerable<clsMeasurment> GetGarmentMasterMeasurement(int GarmentID)
         {
             List<clsMeasurment> lstMeasurment = new List<clsMeasurment>();
@@ -40,6 +60,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLog(ex);
             }
             return lstMeasurment;
         }
@@ -67,6 +88,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLog(ex);
             }
             return lstStyle;
         }
@@ -93,6 +115,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLog(ex);
             }
             return lstBodyPosture;
         }
@@ -119,7 +142,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
             }
             catch (Exception ex)
             {
-
+                ExceptionLog(ex);
             }
             return lstStichType;
         }
@@ -146,7 +169,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
             }
             catch (Exception ex)
             {
-
+                ExceptionLog(ex);
             }
             return lstFitType;
         }
@@ -183,7 +206,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
             }
             catch (Exception ex)
             {
-
+                ExceptionLog(ex);
             }
             return lstGarmentRate;
         }
@@ -212,7 +235,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
             }
             catch (Exception ex)
             {
-
+                ExceptionLog(ex);
             }
             return lstGarmentList;
         }
@@ -246,12 +269,19 @@ namespace Smart_Tailoring_WebAPI.Controllers
 
         public DataTable CopyCommonMeasurement(int GarmentID)
         {
-            DataTable dtcommon = null;
-            ObjDAL.SetStoreProcedureData("GarmentID", SqlDbType.Int, GarmentID, clsCoreApp.ParamType.Input);
-            DataSet dscommon = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".dbo.SPR_Get_CommonMeasurement");
-            if (dscommon != null && dscommon.Tables.Count > 0)
+            DataTable dtcommon = new DataTable();
+            try
             {
-                dtcommon = dscommon.Tables[0];
+                ObjDAL.SetStoreProcedureData("GarmentID", SqlDbType.Int, GarmentID, clsCoreApp.ParamType.Input);
+                DataSet dscommon = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".dbo.SPR_Get_CommonMeasurement");
+                if (dscommon != null && dscommon.Tables.Count > 0)
+                {
+                    dtcommon = dscommon.Tables[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionLog(ex);
             }
             return dtcommon;
         }

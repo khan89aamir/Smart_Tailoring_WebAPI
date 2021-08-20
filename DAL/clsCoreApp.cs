@@ -5,11 +5,13 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
+using System.Reflection;
+using System.IO;
 
 /// <summary>
 /// Summary description for clsCoreApp
 /// </summary>
-public  class clsCoreApp 
+public class clsCoreApp
 {
     public string strErrorText = "";
     private int Counter = 0;
@@ -18,7 +20,7 @@ public  class clsCoreApp
     DataTable dtOutputParm = new DataTable();
     // List for storing sql parameter.
     private char[] c1 = new char[2];
-   
+
     List<SqlParameter> lstSQLParameter = new List<SqlParameter>();
     public clsCoreApp()
     {
@@ -52,7 +54,6 @@ public  class clsCoreApp
     public void SetValue(int value)
     {
         MyValue = value;
-
     }
     public int GetValue()
     {
@@ -84,7 +85,7 @@ public  class clsCoreApp
             else if (parameterType == ParamType.Output)
             {
                 p.Direction = ParameterDirection.Output;
-                
+
                 // set the Max size by default for below parm
                 if (p.SqlDbType == SqlDbType.NVarChar || p.SqlDbType == SqlDbType.Text || p.SqlDbType == SqlDbType.VarChar || p.SqlDbType == SqlDbType.VarBinary)
                 {
@@ -129,10 +130,12 @@ public  class clsCoreApp
                 }
             }
         }
-        catch (Exception  ex)
+        catch (Exception ex)
         {
             strErrorText = ex.ToString();
-           
+
+            string msg = "Query : " + query + "; Exception : " + strErrorText;
+            WriteBackupLog(null, "ExecuteSelectStatement", null, msg);
         }
         return dtTable;
     }
@@ -148,7 +151,7 @@ public  class clsCoreApp
                 {
                     cmd.Connection = con;
                     con.Open();
-                    result= cmd.ExecuteNonQuery();
+                    result = cmd.ExecuteNonQuery();
                     con.Close();
                 }
             }
@@ -156,13 +159,16 @@ public  class clsCoreApp
         catch (Exception ex)
         {
             strErrorText = ex.ToString();
+
+            string msg = "Query : " + query + "; Exception : " + strErrorText;
+            WriteBackupLog(null, "ExecuteNonQuery", null, msg);
         }
 
         return result;
     }
     public object ExecuteScalarQuery(string query)
     {
-        object result  = 0;
+        object result = 0;
         try
         {
             string constr = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
@@ -174,7 +180,6 @@ public  class clsCoreApp
                     con.Open();
                     result = cmd.ExecuteScalar();
 
-
                     con.Close();
                 }
             }
@@ -182,6 +187,9 @@ public  class clsCoreApp
         catch (Exception ex)
         {
             strErrorText = ex.ToString();
+
+            string msg = "Query : " + query + "; Exception : " + strErrorText;
+            WriteBackupLog(null, "ExecuteScalarQuery", null, msg);
         }
 
         return result;
@@ -199,7 +207,7 @@ public  class clsCoreApp
                 {
                     cmd.Connection = con;
                     con.Open();
-                    if (cmd.ExecuteScalar()!=null)
+                    if (cmd.ExecuteScalar() != null)
                     {
                         result = Convert.ToInt32(cmd.ExecuteScalar());
                     }
@@ -208,7 +216,6 @@ public  class clsCoreApp
                         result = 0;
                     }
 
-
                     con.Close();
                 }
             }
@@ -216,6 +223,9 @@ public  class clsCoreApp
         catch (Exception ex)
         {
             strErrorText = ex.ToString();
+
+            string msg = "Query : " + query + "; Exception : " + strErrorText;
+            WriteBackupLog(null, "ExecuteScalarInt", null, msg);
         }
 
         return result;
@@ -248,40 +258,62 @@ public  class clsCoreApp
     public bool ExecuteStoreProcedure_DML(string strStoreProcedureName)
     {
         bool result = false;
+
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("*** Parameter details ***");
+
         if (dtOutputParm != null && dtOutputParm.Rows.Count > 0)
         {
             dtOutputParm.Clear();
-        }       
+        }
         try
         {
             string constr = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
-            using (SqlConnection con=new SqlConnection(constr))
+            using (SqlConnection con = new SqlConnection(constr))
             {
-                SqlCommand cmd = new SqlCommand();
-                cmd.CommandText = strStoreProcedureName;
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Connection = con;
-
-                // if sp is called with parameters.
-                if (lstSQLParameter.Count > 0)
+                using (SqlCommand cmd = new SqlCommand())
                 {
-                    SqlParameter[] p = lstSQLParameter.ToArray();
-                    cmd.Parameters.AddRange(p);
-                }
-                con.Open();
-                cmd.ExecuteNonQuery();
-
-                // check if there is any output parameter.
-                for (int i = 0; i < cmd.Parameters.Count; i++)
-                {
-                    if (cmd.Parameters[i].Direction == ParameterDirection.Output)
+                    if (con.State == ConnectionState.Closed || con.State == ConnectionState.Broken)
                     {
-                        InitOutputTable();
-                        AddRowToOutputParm(cmd.Parameters[i].ParameterName, cmd.Parameters[i].Value);
+                        con.Open();
                     }
+                    cmd.CommandText = strStoreProcedureName;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Connection = con;
+
+                    // if sp is called with parameters.
+                    if (lstSQLParameter.Count > 0)
+                    {
+                        SqlParameter[] p = lstSQLParameter.ToArray();
+                        cmd.Parameters.AddRange(p);
+
+                        for (int i = 0; i < p.Length; i++)
+                        {
+                            if (p[i].SqlDbType != SqlDbType.Structured)
+                            {
+                                sb.AppendLine("Parameter Name : " + p[i].ParameterName);
+                                sb.AppendLine("Parameter Value : " + p[i].Value);
+                            }
+                        }
+                    }
+
+                    //WriteBackupLog(null, "ExecuteStoreProcedure_DML", null, "SP Name : " + strStoreProcedureName + " Parameters List " + Environment.NewLine + sb.ToString());
+
+                    //con.Open();
+                    cmd.ExecuteNonQuery();
+
+                    // check if there is any output parameter.
+                    for (int i = 0; i < cmd.Parameters.Count; i++)
+                    {
+                        if (cmd.Parameters[i].Direction == ParameterDirection.Output)
+                        {
+                            InitOutputTable();
+                            AddRowToOutputParm(cmd.Parameters[i].ParameterName, cmd.Parameters[i].Value);
+                        }
+                    }
+                    result = true;
+                    con.Close();
                 }
-                result = true;
-                con.Close();
             }
         }
         catch (Exception ex)
@@ -289,6 +321,9 @@ public  class clsCoreApp
             strErrorText = ex.ToString();
             ResetData();
             result = false;
+
+            string msg = "SP Name : " + strStoreProcedureName + " Exception : " + strErrorText + Environment.NewLine + sb.ToString();
+            WriteBackupLog(null, "ExecuteStoreProcedure_DML", null, msg);
         }
         ResetData();
         return result;
@@ -317,7 +352,6 @@ public  class clsCoreApp
         }
         catch (Exception ex)
         {
-         
             ResetData();
             return false;
         }
@@ -325,13 +359,12 @@ public  class clsCoreApp
 
     public int InsertData(string strTableName, bool ReturnIdentity)
     {
-      
         int result = 0;
         SqlCommand cmd = new SqlCommand();
         try
         {
             string constr = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
-            using (SqlConnection con=new SqlConnection(constr))
+            using (SqlConnection con = new SqlConnection(constr))
             {
                 SqlParameter[] p = lstSQLParameter.ToArray();
 
@@ -360,13 +393,9 @@ public  class clsCoreApp
 
                 ResetData();
             }
-
-         
-          
         }
         catch (Exception ex)
         {
-         
             ResetData();
             return -1;
         }
@@ -376,13 +405,12 @@ public  class clsCoreApp
 
     public int UpdateData(string strTableName, string strCondition)
     {
-       
         int result = 0;
         SqlCommand cmd = new SqlCommand();
         try
         {
             string constr = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
-            using (SqlConnection con=new SqlConnection(constr))
+            using (SqlConnection con = new SqlConnection(constr))
             {
                 SqlParameter[] p = lstSQLParameter.ToArray();
                 con.Open();
@@ -395,8 +423,6 @@ public  class clsCoreApp
                 con.Close();
                 ResetData();
             }
-           
-         
         }
         catch (Exception ex)
         {
@@ -421,12 +447,15 @@ public  class clsCoreApp
         }
         string constr = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
         DataSet ds = new DataSet();
-        using (SqlConnection con=new SqlConnection(constr))
+        using (SqlConnection con = new SqlConnection(constr))
         {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("*** Parameter details ***");
+
             SqlCommand cmd = new SqlCommand();
             try
             {
-               SqlDataAdapter ObjDA = new SqlDataAdapter();
+                SqlDataAdapter ObjDA = new SqlDataAdapter();
                 cmd.CommandText = strStoreProcedureName;
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Connection = con;
@@ -436,7 +465,16 @@ public  class clsCoreApp
                 {
                     SqlParameter[] p = lstSQLParameter.ToArray();
                     cmd.Parameters.AddRange(p);
+
+                    for (int i = 0; i < p.Length; i++)
+                    {
+                        sb.AppendLine("Parameter Name : " + p[i].ParameterName);
+                        sb.AppendLine("Parameter Value : " + p[i].Value);
+                    }
                 }
+
+                //WriteBackupLog(null, "ExecuteStoreProcedure_Get", null, "SP Name : " + strStoreProcedureName + " Parameters List " + Environment.NewLine + sb.ToString());
+
                 con.Open();
                 ObjDA.SelectCommand = cmd;
                 ObjDA.Fill(ds);
@@ -456,6 +494,10 @@ public  class clsCoreApp
             {
                 strErrorText = ex.ToString();
                 ResetData();
+
+                string msg = "SP Name : " + strStoreProcedureName + " Exception : " + strErrorText + Environment.NewLine + sb.ToString();
+                WriteBackupLog(null, "ExecuteStoreProcedure_Get", null, msg);
+
                 return null;
             }
             ResetData();
@@ -570,5 +612,80 @@ public  class clsCoreApp
             strDecryptString = null;
         }
         return strDecryptString;
+    }
+
+    private bool WriteToFile(string strText, string filename)
+    {
+        try
+        {
+            using (StreamWriter sw = new StreamWriter(filename, true))
+            {
+                sw.WriteLine(strText, filename, true);
+                //sw.WriteLine("Log Text : " + strText, filename, true);
+                //sw.WriteLine("______________________________________", filename, true);
+                sw.Flush();
+                sw.Close();
+            }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return true;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    public void WriteBackupLog(string Controller, string method, string url, string status)
+    {
+        try
+        {
+            string file = "Food Choice API Log_" + DateTime.Now.ToString("yyyy-MM-dd") + ".log";
+            string path = AppDomain.CurrentDomain.BaseDirectory + @"\Logs\" + file;
+            if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\Logs"))
+            {
+                Directory.CreateDirectory(AppDomain.CurrentDomain.BaseDirectory + @"\Logs");
+            }
+
+            WriteToFile("Log Date : " + DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"), path);
+            WriteToFile("Controller : " + Controller == "" ? "NA" : Controller, path);
+            WriteToFile("Method : " + method, path);
+            WriteToFile("URL : " + url == "" ? "NA" : url, path);
+            WriteToFile("Exception : " + status, path);
+            WriteToFile("______________________________________", path);
+        }
+        catch { }
+    }
+
+    /// <summary>
+    /// Converting from List<> to DataTable
+    /// </summary>
+    /// <param name="items">Generic List</param>
+    /// <returns>DataTable</returns>
+    public DataTable ToDataTable<T>(List<T> items)
+    {
+        DataTable dataTable = new DataTable(typeof(T).Name);
+        if (items.Count > 0)
+        {
+            //Get all the properties by using reflection   
+            PropertyInfo[] Props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach (PropertyInfo prop in Props)
+            {
+                //Setting column names as Property names  
+                dataTable.Columns.Add(prop.Name);
+            }
+            foreach (T item in items)
+            {
+                var values = new object[Props.Length];
+                for (int i = 0; i < Props.Length; i++)
+                {
+                    values[i] = Props[i].GetValue(item, null);
+                }
+                dataTable.Rows.Add(values);
+            }
+        }
+        return dataTable;
     }
 }

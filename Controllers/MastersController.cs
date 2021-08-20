@@ -20,26 +20,52 @@ namespace Smart_Tailoring_WebAPI.Controllers
 
         clsCoreApp ObjDAL = new clsCoreApp();
 
+        private string[] ExceptionLog(Exception ex, bool IsAutoLog = true)
+        {
+            string[] strError = new string[3];
+
+            string strUrl = ControllerContext.Request.RequestUri.AbsoluteUri;
+
+            string strControllername = ControllerContext.Request.RequestUri.Segments[2].ToString();
+            string strMethod = ((System.Web.Http.ApiController)ControllerContext.Controller).Url.Request.RequestUri.Segments[3];
+
+            if (IsAutoLog)
+                ObjDAL.WriteBackupLog(strControllername.Replace("/", "Controller"), strMethod, strUrl, ex.ToString());
+            else
+            {
+                strError[0] = strControllername;
+                strError[1] = strMethod;
+                strError[2] = strUrl;
+            }
+            return strError;
+        }
+
         public IEnumerable<Customer> GetCustomerDetails(int lastChange)
         {
             List<Customer> lstcustomers = new List<Customer>();
-
-            ObjDAL.SetStoreProcedureData("LastChange", System.Data.SqlDbType.BigInt, lastChange);
-            DataSet dsCustomer = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".[dbo].[SPR_Sync_Customer]");
-            if (dsCustomer != null && dsCustomer.Tables.Count > 0)
+            try
             {
-                DataTable dtCustomer = dsCustomer.Tables[0];
+                ObjDAL.SetStoreProcedureData("LastChange", System.Data.SqlDbType.BigInt, lastChange);
+                DataSet dsCustomer = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".[dbo].[SPR_Sync_Customer]");
+                if (dsCustomer != null && dsCustomer.Tables.Count > 0)
+                {
+                    DataTable dtCustomer = dsCustomer.Tables[0];
 
-                lstcustomers = (from DataRow dr in dtCustomer.Rows
-                                select new Customer()
-                                {
-                                    CustomerID = Convert.ToInt32(dr["CustomerID"]),
-                                    Name = dr["Name"].ToString(),
-                                    Address = dr["Address"].ToString(),
-                                    MobileNo = dr["MobileNo"].ToString(),
-                                    EmailID = dr["EmailID"].ToString(),
-                                    LastChange = dr["LastChange"].ToString()
-                                }).ToList();
+                    lstcustomers = (from DataRow dr in dtCustomer.Rows
+                                    select new Customer()
+                                    {
+                                        CustomerID = Convert.ToInt32(dr["CustomerID"]),
+                                        Name = dr["Name"].ToString(),
+                                        Address = dr["Address"].ToString(),
+                                        MobileNo = dr["MobileNo"].ToString(),
+                                        EmailID = dr["EmailID"].ToString(),
+                                        LastChange = dr["LastChange"].ToString()
+                                    }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionLog(ex);
             }
             return lstcustomers;
         }
@@ -47,24 +73,30 @@ namespace Smart_Tailoring_WebAPI.Controllers
         public IEnumerable<UserManagement> GetUserManagementDetails(int lastChange)
         {
             List<UserManagement> lstusers = new List<UserManagement>();
-
-            ObjDAL.SetStoreProcedureData("LastChange", System.Data.SqlDbType.BigInt, lastChange);
-            DataSet dsUser = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".[dbo].[SPR_Sync_UserManagement]");
-            if (dsUser != null && dsUser.Tables.Count > 0)
+            try
             {
-                DataTable dtUser = dsUser.Tables[0];
+                ObjDAL.SetStoreProcedureData("LastChange", System.Data.SqlDbType.BigInt, lastChange);
+                DataSet dsUser = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".[dbo].[SPR_Sync_UserManagement]");
+                if (dsUser != null && dsUser.Tables.Count > 0)
+                {
+                    DataTable dtUser = dsUser.Tables[0];
 
-                lstusers = (from DataRow dr in dtUser.Rows
-                            select new UserManagement()
-                            {
-                                UserID = Convert.ToInt32(dr["UserID"]),
-                                EmployeeID = Convert.ToInt32(dr["EmployeeID"]),
-                                ActiveStatus = Convert.ToInt32(dr["ActiveStatus"]),
-                                UserName = dr["UserName"].ToString(),
-                                Password = dr["Password"].ToString(),
-                                EmailID = dr["EmailID"].ToString(),
-                                LastChange = Convert.ToInt32(dr["LastChange"])
-                            }).ToList();
+                    lstusers = (from DataRow dr in dtUser.Rows
+                                select new UserManagement()
+                                {
+                                    UserID = Convert.ToInt32(dr["UserID"]),
+                                    EmployeeID = Convert.ToInt32(dr["EmployeeID"]),
+                                    ActiveStatus = Convert.ToInt32(dr["ActiveStatus"]),
+                                    UserName = dr["UserName"].ToString(),
+                                    Password = dr["Password"].ToString(),
+                                    EmailID = dr["EmailID"].ToString(),
+                                    LastChange = Convert.ToInt32(dr["LastChange"])
+                                }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionLog(ex);
             }
             return lstusers;
         }
@@ -133,7 +165,8 @@ namespace Smart_Tailoring_WebAPI.Controllers
             }
             catch (Exception ex)
             {
-
+                string[] strError = ExceptionLog(ex, false);
+                ObjDAL.WriteBackupLog(strError[0], strError[1], strError[2], "CustomerID : " + lstCustomerList[0].CustomerID + " " + ex.ToString());
             }
             return response;
         }
@@ -175,7 +208,9 @@ namespace Smart_Tailoring_WebAPI.Controllers
             }
             catch (Exception ex)
             {
+                string[] strError = ExceptionLog(ex, false);
 
+                ObjDAL.WriteBackupLog(strError[0], strError[1], strError[2], "UserID : " + lstUserList[0].UserID + " " + ex.ToString());
             }
             return response;
         }
@@ -243,26 +278,32 @@ namespace Smart_Tailoring_WebAPI.Controllers
         public IEnumerable<Employee> GetEmployeeDetails(int EmpID)
         {
             List<Employee> lstEmployees = new List<Employee>();
-
-            ObjDAL.SetStoreProcedureData("EmpID", System.Data.SqlDbType.Int, EmpID);
-            DataSet Employee = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".[dbo].[SPR_Get_Employee]");
-            if (Employee != null && Employee.Tables.Count > 0)
+            try
             {
-                DataTable dtEmployee = Employee.Tables[0];
+                ObjDAL.SetStoreProcedureData("EmpID", System.Data.SqlDbType.Int, EmpID);
+                DataSet Employee = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".[dbo].[SPR_Get_Employee]");
+                if (Employee != null && Employee.Tables.Count > 0)
+                {
+                    DataTable dtEmployee = Employee.Tables[0];
 
-                lstEmployees = (from DataRow dr in dtEmployee.Rows
-                                select new Employee()
-                                {
-                                    EmpID = Convert.ToInt32(dr["EmpID"]),
-                                    Name = dr["Name"].ToString(),
-                                    Address = dr["Address"].ToString(),
-                                    MobileNo = dr["MobileNo"].ToString(),
-                                    Gender = dr["Gender"].ToString(),
-                                    EmployeeCode = dr["EmployeeCode"].ToString(),
-                                    EmployeeType = dr["EmployeeType"].ToString(),
-                                    ActiveStatus = dr["ActiveStatus"].ToString(),
-                                    LastChange = Convert.ToInt32(dr["LastChange"])
-                                }).ToList();
+                    lstEmployees = (from DataRow dr in dtEmployee.Rows
+                                    select new Employee()
+                                    {
+                                        EmpID = Convert.ToInt32(dr["EmpID"]),
+                                        Name = dr["Name"].ToString(),
+                                        Address = dr["Address"].ToString(),
+                                        MobileNo = dr["MobileNo"].ToString(),
+                                        Gender = dr["Gender"].ToString(),
+                                        EmployeeCode = dr["EmployeeCode"].ToString(),
+                                        EmployeeType = dr["EmployeeType"].ToString(),
+                                        ActiveStatus = dr["ActiveStatus"].ToString(),
+                                        LastChange = Convert.ToInt32(dr["LastChange"])
+                                    }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionLog(ex);
             }
             return lstEmployees;
         }

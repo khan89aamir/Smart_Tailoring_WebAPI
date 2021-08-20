@@ -157,14 +157,27 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MastersController.cs" />
+    <Compile Include="Controllers\OrderController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="DAL\clsCoreApp.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\ActivationDetails.cs" />
+    <Compile Include="Models\OrderModel\clsBodyPosture.cs" />
+    <Compile Include="Models\OrderModel\clsGarmentRate.cs" />
+    <Compile Include="Models\OrderModel\clsMeasurment.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\Employee.cs" />
+    <Compile Include="Models\OrderModel\clsStyle.cs" />
+    <Compile Include="Models\OrderModel\CustomerBodyPosture.cs" />
+    <Compile Include="Models\OrderModel\CustomerMeasurement.cs" />
+    <Compile Include="Models\OrderModel\CustomerStyle.cs" />
+    <Compile Include="Models\OrderModel\FitType.cs" />
+    <Compile Include="Models\OrderModel\GarmentList.cs" />
+    <Compile Include="Models\OrderModel\SalesOrder.cs" />
+    <Compile Include="Models\OrderModel\SalesOrderDetails.cs" />
+    <Compile Include="Models\OrderModel\StichType.cs" />
     <Compile Include="Models\Response.cs" />
     <Compile Include="Models\UserManagement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

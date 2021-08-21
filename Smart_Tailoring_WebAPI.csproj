@@ -171,10 +171,12 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\ActivationDetails.cs" />
-    <Compile Include="Models\clsMeasurment.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\Employee.cs" />
-    <Compile Include="Models\OrderModel\clsStyle.cs" />
+    <Compile Include="Models\clsBodyPosture.cs" />
+    <Compile Include="Models\clsGarmentRate.cs" />
+    <Compile Include="Models\clsMeasurment.cs" />
+    <Compile Include="Models\clsStyle.cs" />
     <Compile Include="Models\OrderModel\CustomerBodyPosture.cs" />
     <Compile Include="Models\OrderModel\CustomerMeasurement.cs" />
     <Compile Include="Models\OrderModel\CustomerStichFitType.cs" />
@@ -541,7 +543,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>3720</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://192.168.43.51:80/</IISUrl>
+          <IISUrl>http://192.168.0.7:3720/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

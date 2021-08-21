@@ -8,6 +8,7 @@ namespace Smart_Tailoring_WebAPI.Models
     public class Customer
     {    
         public int CustomerID { get; set; }
+        public int MB_CustomerID { get; set; }
         public string Name { get; set; }
         public string MobileNo { get; set; } 
 
@@ -19,6 +20,6 @@ namespace Smart_Tailoring_WebAPI.Models
         public string Select { get; set; }
         public string Delete { get; set; }
 
-        //public string LastChange { get; set; }
+        public string LastChange { get; set; }
     }
 }

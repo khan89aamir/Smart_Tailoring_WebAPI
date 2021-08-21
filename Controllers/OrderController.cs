@@ -55,7 +55,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
                                          MeasurmentID = Convert.ToInt32(dr["MeasurementID"]),
                                          MeasurmentName = dr["MeasurementName"].ToString(),
                                          IsMandatory = Convert.ToBoolean(dr["IsMandatory"]),
-                                         value = "0"
+                                         //value = "0"
                                      }).ToList();
                 }
             }
@@ -230,7 +230,8 @@ namespace Smart_Tailoring_WebAPI.Controllers
                                       {
                                           GarmentID = Convert.ToInt32(dr["GarmentID"]),
                                           Name = dr["GarmentName"].ToString(),
-                                          ImageURL = dr["Photo1"].ToString(),
+                                          GarmentType = dr["GarmentType"].ToString(),
+                                          ImageURL = "/Images/Generic/"+dr["Photo1"].ToString(),
                                       }).ToList();
                 }
             }

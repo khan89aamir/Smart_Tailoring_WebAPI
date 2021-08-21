@@ -59,7 +59,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
                                         Address = dr["Address"].ToString(),
                                         MobileNo = dr["MobileNo"].ToString(),
                                         EmailID = dr["EmailID"].ToString(),
-                                        //LastChange = dr["LastChange"].ToString()
+                                        LastChange = dr["LastChange"].ToString()
                                     }).ToList();
                 }
             }
@@ -130,8 +130,8 @@ namespace Smart_Tailoring_WebAPI.Controllers
                             Name = lstCustomerList[i].Name,
                             Address = lstCustomerList[i].Address,
                             EmailID = lstCustomerList[i].EmailID,
-                            //LastChange = LastChangeID.ToString(),
-                            //MB_CustomerID = lstCustomerList[i].MB_CustomerID,
+                            LastChange = LastChangeID.ToString(),
+                            MB_CustomerID = lstCustomerList[i].MB_CustomerID,
                             MobileNo = lstCustomerList[i].MobileNo
                         });
                     }

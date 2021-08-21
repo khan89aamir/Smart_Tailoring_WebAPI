@@ -642,7 +642,7 @@ public class clsCoreApp
     {
         try
         {
-            string file = "Food Choice API Log_" + DateTime.Now.ToString("yyyy-MM-dd") + ".log";
+            string file = "Smart Tailoring API Log_" + DateTime.Now.ToString("yyyy-MM-dd") + ".log";
             string path = AppDomain.CurrentDomain.BaseDirectory + @"\Logs\" + file;
             if (!Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + @"\Logs"))
             {

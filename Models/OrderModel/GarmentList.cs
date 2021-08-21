@@ -8,6 +8,7 @@ namespace Smart_Tailoring_WebAPI.Models.OrderModel
     public class GarmentList
     {
         public int GarmentID { get; set; }
+        public string GarmentType { get; set; }
 
         public string ImageURL { get; set; }
 

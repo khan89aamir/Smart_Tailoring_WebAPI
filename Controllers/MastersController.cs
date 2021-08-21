@@ -7,6 +7,8 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Data;
 using System.Configuration;
+using Newtonsoft.Json.Linq;
+using System.Web.Http.Description;
 
 namespace Smart_Tailoring_WebAPI.Controllers
 {
@@ -37,8 +39,8 @@ namespace Smart_Tailoring_WebAPI.Controllers
                                     Name = dr["Name"].ToString(),
                                     Address = dr["Address"].ToString(),
                                     MobileNo = dr["MobileNo"].ToString(),
-                                    EmailID = dr["EmailID"].ToString(),
-                                    LastChange = dr["LastChange"].ToString()
+                                    EmailID = dr["EmailID"].ToString()
+                                   
                                 }).ToList();
             }
             return lstcustomers;
@@ -98,8 +100,8 @@ namespace Smart_Tailoring_WebAPI.Controllers
                             Name = lstCustomerList[i].Name,
                             Address = lstCustomerList[i].Address,
                             EmailID = lstCustomerList[i].EmailID,
-                            LastChange = LastChangeID.ToString(),
-                            MB_CustomerID = lstCustomerList[i].MB_CustomerID,
+                         
+                           
                             MobileNo = lstCustomerList[i].MobileNo
                         });
                     }
@@ -124,8 +126,8 @@ namespace Smart_Tailoring_WebAPI.Controllers
                             Name = lstCustomerList[i].Name,
                             Address = lstCustomerList[i].Address,
                             EmailID = lstCustomerList[i].EmailID,
-                            LastChange = LastChangeID.ToString(),
-                            MB_CustomerID = lstCustomerList[i].MB_CustomerID,
+                          
+                         
                             MobileNo = lstCustomerList[i].MobileNo
                         });
                     }
@@ -239,7 +241,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
                 return new Response { Result = false, Message = "Invalid Login Details", Value = 0 };
             }
         }
-
+      
         public IEnumerable<Employee> GetEmployeeDetails(int EmpID)
         {
             List<Employee> lstEmployees = new List<Employee>();
@@ -283,7 +285,8 @@ namespace Smart_Tailoring_WebAPI.Controllers
                                      {
                                          MeasurmentID = Convert.ToInt32(dr["MeasurementID"]),
                                          MeasurmentName = dr["MeasurementName"].ToString(),
-                                         IsMendatory = Convert.ToBoolean(dr["IsMandatory"])
+                                         IsMendatory = Convert.ToBoolean(dr["IsMandatory"]),
+                                         value=""
 
                                      }).ToList();
                 }
@@ -297,6 +300,44 @@ namespace Smart_Tailoring_WebAPI.Controllers
               
 
             return lstMeasurment;
+        }
+
+
+        [HttpPost]
+      
+        public Response SaveCustomerData(JObject data)
+        {
+            var cust = ((Newtonsoft.Json.Linq.JProperty)data.First).Name;
+
+            Customer item = Newtonsoft.Json.JsonConvert.DeserializeObject<Customer>(cust);
+
+            return new Response { Result = true, Message = "Customer has been saved", Value = 1 };
+        }
+
+
+        public List<Customer> GetCustomerData(int CustID)
+        {
+            List<Customer> lstcustomers = new List<Customer>();
+
+            DataTable dtCustomer=  ObjDAL.ExecuteSelectStatement("select CustomerID,Name,MobileNo,EmailID,Address FROM [TAILORING_01].[dbo].[CustomerMaster]");
+         
+            if (dtCustomer != null && dtCustomer.Rows.Count > 0)
+            {
+           
+
+                lstcustomers = (from DataRow dr in dtCustomer.Rows
+                                select new Customer()
+                                {
+                                    CustomerID = Convert.ToInt32(dr["CustomerID"]),
+                                    Name = dr["Name"].ToString(),
+                                    Address = dr["Address"].ToString(),
+                                    MobileNo = dr["MobileNo"].ToString(),
+                                    EmailID = dr["EmailID"].ToString(),
+                                    Edit= "Edit"
+
+                                }).ToList();
+            }
+            return lstcustomers;
         }
     }
 }

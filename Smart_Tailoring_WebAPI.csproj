@@ -14,7 +14,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Smart_Tailoring_WebAPI</RootNamespace>
     <AssemblyName>Smart_Tailoring_WebAPI</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>false</UseIISExpress>
     <Use64BitIISExpress />
@@ -25,6 +25,7 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,15 +49,21 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.Cors, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.Cors.5.2.7\lib\net45\System.Web.Cors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Http.Cors, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.WebApi.Cors.5.2.7\lib\net45\System.Web.Http.Cors.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Routing" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
@@ -108,6 +115,7 @@
       <Private>True</Private>
       <HintPath>packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WebGrease">
       <Private>True</Private>
       <HintPath>packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
@@ -163,6 +171,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\ActivationDetails.cs" />
+    <Compile Include="Models\clsMeasurment.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\Response.cs" />
@@ -178,6 +187,257 @@
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
+    <Content Include="Images\1 Back Pocket.jpg" />
+    <Content Include="Images\1 Button edge cut cuff.jpg" />
+    <Content Include="Images\1 Button round cut cuff.jpg" />
+    <Content Include="Images\1 Button square 1 cuff.jpg" />
+    <Content Include="Images\1 Pleat.jpg" />
+    <Content Include="Images\2 Back pocket.jpg" />
+    <Content Include="Images\2 Button edge cut cuff.jpg" />
+    <Content Include="Images\2 Button round cut cuff.jpg" />
+    <Content Include="Images\2 Button square cuff.jpg" />
+    <Content Include="Images\2 Pleat.jpg" />
+    <Content Include="Images\Back close.jpg" />
+    <Content Include="Images\Bandgalan1.png" />
+    <Content Include="Images\Box front placket.jpg" />
+    <Content Include="Images\Box Pleat.jpg" />
+    <Content Include="Images\Box Stitch half sleeve.jpg" />
+    <Content Include="Images\Button down collar.jpg" />
+    <Content Include="Images\Center open.jpg" />
+    <Content Include="Images\Classic Bandagala.jpg" />
+    <Content Include="Images\Concealed front placket.jpg" />
+    <Content Include="Images\Cross pocket.jpg" />
+    <Content Include="Images\Cut Belt.jpg" />
+    <Content Include="Images\D B 2 Button.png" />
+    <Content Include="Images\Dart.jpg" />
+    <Content Include="Images\DB 1 Button.jpg" />
+    <Content Include="Images\DB 2 Button.jpg" />
+    <Content Include="Images\DB 6 Button.jpg" />
+    <Content Include="Images\Double Bone Kaj.jpg" />
+    <Content Include="Images\Double Bone Loop .jpg" />
+    <Content Include="Images\double Jacket Lapel\D B 2 Button.png" />
+    <Content Include="Images\double Jacket Lapel\D B 6 buttons.png" />
+    <Content Include="Images\Edge cut french cuff.jpg" />
+    <Content Include="Images\Edge cut pocket.jpg" />
+    <Content Include="Images\errect.jpg" />
+    <Content Include="Images\extra\1 Back Pocket.png" />
+    <Content Include="Images\extra\1 button edge cut cuff.png" />
+    <Content Include="Images\extra\1 button square cuff.png" />
+    <Content Include="Images\extra\2 Back Pocket.png" />
+    <Content Include="Images\extra\2 Button edge cut cuff.png" />
+    <Content Include="Images\extra\2 Button round cuff.png" />
+    <Content Include="Images\extra\2 Button square cuff.png" />
+    <Content Include="Images\extra\Band Collar.png" />
+    <Content Include="Images\extra\Bandgalan1.png" />
+    <Content Include="Images\extra\Bow Leg.PNG" />
+    <Content Include="Images\extra\Box Placket.png" />
+    <Content Include="Images\extra\BP Kaaj Button.png" />
+    <Content Include="Images\extra\BP Loop Button.png" />
+    <Content Include="Images\extra\Button Down collar .png" />
+    <Content Include="Images\extra\Conciled placket.png" />
+    <Content Include="Images\extra\Cross Pocket.png" />
+    <Content Include="Images\extra\Cut Belt button.png" />
+    <Content Include="Images\extra\Cut Belt.png" />
+    <Content Include="Images\extra\Cutway Collar.png" />
+    <Content Include="Images\extra\Down Shoulder.png" />
+    <Content Include="Images\extra\Edge cut french cuff.png" />
+    <Content Include="Images\extra\Edge cut pocket.png" />
+    <Content Include="Images\extra\Errect back.png" />
+    <Content Include="Images\extra\Flap Pocket.png" />
+    <Content Include="Images\extra\Joint Thigh.PNG" />
+    <Content Include="Images\extra\Knock Knee.PNG" />
+    <Content Include="Images\extra\L Pocket.png" />
+    <Content Include="Images\extra\Long Belt button png.png" />
+    <Content Include="Images\extra\Long Belt.png" />
+    <Content Include="Images\extra\Mobile Pocket.png" />
+    <Content Include="Images\extra\Normal Bottom.png" />
+    <Content Include="Images\extra\Normal Shoulder.png" />
+    <Content Include="Images\extra\Plain Placket.png" />
+    <Content Include="Images\extra\Prominent Thigh.PNG" />
+    <Content Include="Images\extra\Regular Collar.png" />
+    <Content Include="Images\extra\Round Back.png" />
+    <Content Include="Images\extra\Round Bottom.png" />
+    <Content Include="Images\extra\Round Buttom.png" />
+    <Content Include="Images\extra\Round French cuff.png" />
+    <Content Include="Images\extra\Round Pocket tr.png" />
+    <Content Include="Images\extra\Round Pocket.png" />
+    <Content Include="Images\extra\S B 1 Buttons Shawl lapel png.png" />
+    <Content Include="Images\extra\SB 1 Button Slant pocket.png" />
+    <Content Include="Images\extra\SB 1 Button Slant ticket pocket.png" />
+    <Content Include="Images\extra\SB 2 button patch pocket.png" />
+    <Content Include="Images\extra\SB 2 button peak lapel.png" />
+    <Content Include="Images\extra\SB 2 button slant ticket pocket peak lapel png.png" />
+    <Content Include="Images\extra\SB 2 button slant ticket pocket.png" />
+    <Content Include="Images\extra\Semi Cutway Collar.png" />
+    <Content Include="Images\extra\Shoe Shape.png" />
+    <Content Include="Images\extra\Side cut Bottom.png" />
+    <Content Include="Images\extra\Side Pocket.png" />
+    <Content Include="Images\extra\Square french cuff.png" />
+    <Content Include="Images\extra\Square pocket.png" />
+    <Content Include="Images\extra\Square Shoulder.png" />
+    <Content Include="Images\extra\Straight bottom.png" />
+    <Content Include="Images\extra\Turn up.png" />
+    <Content Include="Images\extra\V shape pocket.png" />
+    <Content Include="Images\extra\Watch pocket.png" />
+    <Content Include="Images\extra\Wing Collar.png" />
+    <Content Include="Images\Flap back pocket.jpg" />
+    <Content Include="Images\Flap Pocket.jpg" />
+    <Content Include="Images\Flat front.jpg" />
+    <Content Include="Images\Fold.jpg" />
+    <Content Include="Images\Front back lining.jpg" />
+    <Content Include="Images\Front lining.jpg" />
+    <Content Include="Images\Full cutway collar.jpg" />
+    <Content Include="Images\Full lining.jpg" />
+    <Content Include="Images\Fuse front placket.jpg" />
+    <Content Include="Images\Generic\Bandgalan1.png" />
+    <Content Include="Images\Generic\D B 2 Button.png" />
+    <Content Include="Images\Generic\Jacket.png" />
+    <Content Include="Images\Generic\Kurta generic 1.png" />
+    <Content Include="Images\Generic\Shirt generic 1.png" />
+    <Content Include="Images\Generic\T-Shirt generic 1.png" />
+    <Content Include="Images\Generic\Trouser Generic 1.png" />
+    <Content Include="Images\Generic\Tuxedo 1 button shawl collar.png" />
+    <Content Include="Images\hunch.jpg" />
+    <Content Include="Images\Jacket.png" />
+    <Content Include="Images\L Pocket.jpg" />
+    <Content Include="Images\Long belt.jpg" />
+    <Content Include="Images\MandrinCollar.jpg" />
+    <Content Include="Images\Mobile Pocket.jpg" />
+    <Content Include="Images\No back pocket.jpg" />
+    <Content Include="Images\No pocket.jpg" />
+    <Content Include="Images\Normal back.jpg" />
+    <Content Include="Images\normal bottom 1.jpg" />
+    <Content Include="Images\Normal Shoulder.jpg" />
+    <Content Include="Images\Normal sleeve.jpg" />
+    <Content Include="Images\Old PNG\1 Back Pocket.png" />
+    <Content Include="Images\Old PNG\1 button edge cut cuff.png" />
+    <Content Include="Images\Old PNG\1 button square cuff.png" />
+    <Content Include="Images\Old PNG\2 Back Pocket.png" />
+    <Content Include="Images\Old PNG\2 Button edge cut cuff.png" />
+    <Content Include="Images\Old PNG\2 Button round cuff.png" />
+    <Content Include="Images\Old PNG\2 Button square cuff.png" />
+    <Content Include="Images\Old PNG\Band Collar.png" />
+    <Content Include="Images\Old PNG\Bandgalan1.png" />
+    <Content Include="Images\Old PNG\Bandgalan2.png" />
+    <Content Include="Images\Old PNG\Box Placket.png" />
+    <Content Include="Images\Old PNG\Box Pleat.png" />
+    <Content Include="Images\Old PNG\BP Kaaj Button.png" />
+    <Content Include="Images\Old PNG\BP Loop Button.png" />
+    <Content Include="Images\Old PNG\Button Down collar .png" />
+    <Content Include="Images\Old PNG\Center vent.png" />
+    <Content Include="Images\Old PNG\Conciled placket.png" />
+    <Content Include="Images\Old PNG\Cross Pocket.png" />
+    <Content Include="Images\Old PNG\Cut Belt button.png" />
+    <Content Include="Images\Old PNG\Cut Belt.png" />
+    <Content Include="Images\Old PNG\Cutway Collar.png" />
+    <Content Include="Images\Old PNG\D B 2 Button.png" />
+    <Content Include="Images\Old PNG\D B 6 buttons.png" />
+    <Content Include="Images\Old PNG\Down Shoulder.png" />
+    <Content Include="Images\Old PNG\Edge cut french cuff.png" />
+    <Content Include="Images\Old PNG\Edge cut pocket.png" />
+    <Content Include="Images\Old PNG\Errect back.png" />
+    <Content Include="Images\Old PNG\Flap Pocket.png" />
+    <Content Include="Images\Old PNG\Kaaj Button Galfi.png" />
+    <Content Include="Images\Old PNG\L Pocket.png" />
+    <Content Include="Images\Old PNG\Long Belt button png.png" />
+    <Content Include="Images\Old PNG\Long Belt button.png" />
+    <Content Include="Images\Old PNG\Long Belt.png" />
+    <Content Include="Images\Old PNG\Mobile Pocket.png" />
+    <Content Include="Images\Old PNG\No pocket.png" />
+    <Content Include="Images\Old PNG\No vent.png" />
+    <Content Include="Images\Old PNG\Normal Bottom.png" />
+    <Content Include="Images\Old PNG\Normal Shoulder.png" />
+    <Content Include="Images\Old PNG\Normal sleeve.png" />
+    <Content Include="Images\Old PNG\Picture1.png" />
+    <Content Include="Images\Old PNG\Picture10.png" />
+    <Content Include="Images\Old PNG\Picture11.png" />
+    <Content Include="Images\Old PNG\Picture12.png" />
+    <Content Include="Images\Old PNG\Picture2.png" />
+    <Content Include="Images\Old PNG\Picture3.png" />
+    <Content Include="Images\Old PNG\Picture4.png" />
+    <Content Include="Images\Old PNG\Picture5.png" />
+    <Content Include="Images\Old PNG\Picture6.png" />
+    <Content Include="Images\Old PNG\Picture8.png" />
+    <Content Include="Images\Old PNG\Picture9.png" />
+    <Content Include="Images\Old PNG\Plain Placket.png" />
+    <Content Include="Images\Old PNG\Regular Collar.png" />
+    <Content Include="Images\Old PNG\Round Back.png" />
+    <Content Include="Images\Old PNG\Round Bottom.png" />
+    <Content Include="Images\Old PNG\Round Buttom.png" />
+    <Content Include="Images\Old PNG\Round French cuff.png" />
+    <Content Include="Images\Old PNG\Round Pocket tr.png" />
+    <Content Include="Images\Old PNG\Round Pocket.png" />
+    <Content Include="Images\Old PNG\S B 1 Buttons Shawl lapel png.png" />
+    <Content Include="Images\Old PNG\S B 1 Buttons.png" />
+    <Content Include="Images\Old PNG\S B 2 Buttons.png" />
+    <Content Include="Images\Old PNG\S B 3 Buttons.png" />
+    <Content Include="Images\Old PNG\SB 1 Button Slant ticjket pocket.png" />
+    <Content Include="Images\Old PNG\SB 1 Button Slant ticket pocket.png" />
+    <Content Include="Images\Old PNG\SB 2 button patch pocket.png" />
+    <Content Include="Images\Old PNG\SB 2 button peak lapel.png" />
+    <Content Include="Images\Old PNG\SB 2 button slant ticket pocket peak lapel png.png" />
+    <Content Include="Images\Old PNG\SB 2 button slant ticket pocket.png" />
+    <Content Include="Images\Old PNG\Semi Cutway Collar.png" />
+    <Content Include="Images\Old PNG\Shoe Shape.png" />
+    <Content Include="Images\Old PNG\Show Kaal.png" />
+    <Content Include="Images\Old PNG\Side cut Bottom.png" />
+    <Content Include="Images\Old PNG\Side Pocket.png" />
+    <Content Include="Images\Old PNG\Side vent.png" />
+    <Content Include="Images\Old PNG\Square french cuff.png" />
+    <Content Include="Images\Old PNG\Square pocket.png" />
+    <Content Include="Images\Old PNG\Square Shoulder.png" />
+    <Content Include="Images\Old PNG\Straight bottom.png" />
+    <Content Include="Images\Old PNG\Turn up.png" />
+    <Content Include="Images\Old PNG\Tuxedo 1 button shawl collar.png" />
+    <Content Include="Images\Old PNG\Tuxedo 2 Button Notch Lapel.png" />
+    <Content Include="Images\Old PNG\Tuxedo 2 Button Peal Lapel.png" />
+    <Content Include="Images\Old PNG\V shape pocket.png" />
+    <Content Include="Images\Old PNG\Watch pocket.png" />
+    <Content Include="Images\Old PNG\Wing Collar.png" />
+    <Content Include="Images\Plain Back.jpg" />
+    <Content Include="Images\Plain front placket.jpg" />
+    <Content Include="Images\Plain half sleeve.jpg" />
+    <Content Include="Images\Prominent stmouch.jpg" />
+    <Content Include="Images\Regular Collar.jpg" />
+    <Content Include="Images\Round Bottom Bandgala.jpg" />
+    <Content Include="Images\Round bottom.jpg" />
+    <Content Include="Images\Round Collar.jpg" />
+    <Content Include="Images\Round french cuff.jpg" />
+    <Content Include="Images\Round long belt.jpg" />
+    <Content Include="Images\Round Pocket.jpg" />
+    <Content Include="Images\SB 1 Button.jpg" />
+    <Content Include="Images\SB 2 Button.jpg" />
+    <Content Include="Images\SB 3 button.jpg" />
+    <Content Include="Images\SB Patch Pocket.jpg" />
+    <Content Include="Images\SB Peak 2 button.jpg" />
+    <Content Include="Images\SB Pleak 3 button.jpg" />
+    <Content Include="Images\SB Pleak1 button.jpg" />
+    <Content Include="Images\Semi cutway collar.jpg" />
+    <Content Include="Images\Shirt generic 1.png" />
+    <Content Include="Images\Shoe Shape.jpg" />
+    <Content Include="Images\Show Kaj.jpg" />
+    <Content Include="Images\Side  Pocket.jpg" />
+    <Content Include="Images\Side pleate1. jpg.jpg" />
+    <Content Include="Images\Side Slit bottom.jpg" />
+    <Content Include="Images\Side Vent.jpg" />
+    <Content Include="Images\Single bone.jpg" />
+    <Content Include="Images\Slooping shoulder.jpg" />
+    <Content Include="Images\Square french cuff.jpg" />
+    <Content Include="Images\Square Shoulder.jpg" />
+    <Content Include="Images\Straight bottom.jpg" />
+    <Content Include="Images\Toolbarimg.JPG" />
+    <Content Include="Images\Tr Flap pocket.jpg" />
+    <Content Include="Images\Tr Round pocket.jpg" />
+    <Content Include="Images\Trouser Generic 1.png" />
+    <Content Include="Images\Tummy.jpg" />
+    <Content Include="Images\Tuxedo 1 button shawl collar.png" />
+    <Content Include="Images\V cut half sleeve.jpg" />
+    <Content Include="Images\V Shape kaj button long belt.jpg" />
+    <Content Include="Images\V Shape long belt.jpg" />
+    <Content Include="Images\V Shape pocket.jpg" />
+    <Content Include="Images\Watch pocket.jpg" />
+    <Content Include="Images\Wing collar.jpg" />
+    <Content Include="Images\Working Kaj.jpg" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Areas\HelpPage\Views\Web.config" />
@@ -222,6 +482,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Images\Generic\extra\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
@@ -270,7 +531,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>3720</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://192.168.56.1//Smart_Tailoring_WebAPI</IISUrl>
+          <IISUrl>http://192.168.43.51:80/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

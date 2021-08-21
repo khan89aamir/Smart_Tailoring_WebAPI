@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using Smart_Tailoring_WebAPI.Models.OrderModel;
+using System.Collections;
 
 namespace Smart_Tailoring_WebAPI.Controllers
 {
@@ -53,7 +54,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
                                      {
                                          MeasurmentID = Convert.ToInt32(dr["MeasurementID"]),
                                          MeasurmentName = dr["MeasurementName"].ToString(),
-                                         IsMendatory = Convert.ToBoolean(dr["IsMandatory"]),
+                                         IsMandatory = Convert.ToBoolean(dr["IsMandatory"]),
                                          value = "0"
                                      }).ToList();
                 }
@@ -240,50 +241,118 @@ namespace Smart_Tailoring_WebAPI.Controllers
             return lstGarmentList;
         }
 
-        public DataSet CopyGarmentDetails_LastOrder(int CustomerID, int GarmentID, int MasterGarmentID)
+        public ArrayList CopyGarmentDetails_LastOrder(int CustomerID, int GarmentID, int MasterGarmentID)
         {
-            ObjDAL.SetStoreProcedureData("CustomerID", SqlDbType.Int, CustomerID, clsCoreApp.ParamType.Input);
-            ObjDAL.SetStoreProcedureData("GarmentID", SqlDbType.Int, GarmentID, clsCoreApp.ParamType.Input);
-            ObjDAL.SetStoreProcedureData("MasterGarmentID", SqlDbType.Int, MasterGarmentID, clsCoreApp.ParamType.Input);
-            DataSet ds = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".dbo.SPR_Get_GarmentMeasurementStyle_CopyOrder");
-            if (ds != null && ds.Tables.Count > 0)
-            {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows.Count > 0)
-                {
-                    if (Convert.ToInt32(dt.Rows[0]["SalesOrderID"]) != 0)
-                    {
-                        //if (ds.Tables.Count > 1)
-                        //    CopyMeasurement_LastOrder(ds.Tables[1]);
+            ArrayList array = new ArrayList();
 
-                        //if (ds.Tables.Count > 2)
-                        //    CopyStyle_LastOrder(ds.Tables[2]);
+            //List<CustomerStichFitType> stichFitType = new List<CustomerStichFitType>();
 
-                        //if (ds.Tables.Count > 3)
-                        //    CopyBodyPosture_LastOrder(ds.Tables[3]);
-                    }
-                }
-            }
-            return ds;
-        }
-
-        public DataTable CopyCommonMeasurement(int GarmentID)
-        {
-            DataTable dtcommon = new DataTable();
+            CustomerStichFitType stichFitType = new CustomerStichFitType();
+            List<CustomerMeasurement> measure = new List<CustomerMeasurement>();
+            List<CustomerStyle> style = new List<CustomerStyle>();
+            List<CustomerBodyPosture> body = new List<CustomerBodyPosture>();
             try
             {
+                ObjDAL.SetStoreProcedureData("CustomerID", SqlDbType.Int, CustomerID, clsCoreApp.ParamType.Input);
                 ObjDAL.SetStoreProcedureData("GarmentID", SqlDbType.Int, GarmentID, clsCoreApp.ParamType.Input);
-                DataSet dscommon = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".dbo.SPR_Get_CommonMeasurement");
-                if (dscommon != null && dscommon.Tables.Count > 0)
+                ObjDAL.SetStoreProcedureData("MasterGarmentID", SqlDbType.Int, MasterGarmentID, clsCoreApp.ParamType.Input);
+                DataSet ds = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".dbo.SPR_Get_GarmentMeasurementStyle_CopyOrder");
+                if (ds != null && ds.Tables.Count > 0)
                 {
-                    dtcommon = dscommon.Tables[0];
+                    DataTable dt = ds.Tables[0];
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                        if (Convert.ToInt32(dt.Rows[0]["SalesOrderID"]) != 0)
+                        {
+                            stichFitType = (from DataRow dr in dt.Rows
+                                            select new CustomerStichFitType()
+                                            {
+                                                MasterGarmentID = Convert.ToInt32(dr["MasterGarmentID"]),
+                                                GarmentID = Convert.ToInt32(dr["GarmentID"]),
+                                                StichTypeID = Convert.ToInt32(dr["StichTypeID"]),
+                                                FitTypeID = Convert.ToInt32(dr["FitTypeID"]),
+                                                OrderDate = dr["OrderDate"].ToString(),
+                                            }).Single();
+
+                            DataTable dtmeasure = ds.Tables[1];
+                            measure = (from DataRow dr in dtmeasure.Rows
+                                       select new CustomerMeasurement()
+                                       {
+                                           MasterGarmentID = Convert.ToInt32(dr["MasterGarmentID"]),
+                                           GarmentID = Convert.ToInt32(dr["GarmentID"]),
+                                           MeasurementID = Convert.ToInt32(dr["MeasurementID"]),
+                                           MeasurementValue = Convert.ToDecimal(dr["MeasurementValue"])
+                                       }).ToList();
+
+                            DataTable dtstyle = ds.Tables[2];
+                            style = (from DataRow dr in dtstyle.Rows
+                                     select new CustomerStyle()
+                                     {
+                                         MasterGarmentID = Convert.ToInt32(dr["MasterGarmentID"]),
+                                         GarmentID = Convert.ToInt32(dr["GarmentID"]),
+                                         QTY = Convert.ToInt32(dr["QTY"]),
+                                         StyleID = Convert.ToInt32(dr["StyleID"]),
+                                         StyleImageID = Convert.ToInt32(dr["StyleImageID"])
+                                     }).ToList();
+
+                            DataTable dtbody = ds.Tables[3];
+                            body = (from DataRow dr in dtbody.Rows
+                                    select new CustomerBodyPosture()
+                                    {
+                                        MasterGarmentID = Convert.ToInt32(dr["MasterGarmentID"]),
+                                        GarmentID = Convert.ToInt32(dr["GarmentID"]),
+                                        BodyPostureID = Convert.ToInt32(dr["BodyPostureID"]),
+                                        BodyPostureMappingID = Convert.ToInt32(dr["BodyPostureMappingID"])
+                                    }).ToList();
+
+                            array.Add(stichFitType);
+                            array.Add(measure);
+                            array.Add(style);
+                            array.Add(body);
+
+                            //if (ds.Tables.Count > 1)
+                            //    CopyMeasurement_LastOrder(ds.Tables[1]);
+
+                            //if (ds.Tables.Count > 2)
+                            //    CopyStyle_LastOrder(ds.Tables[2]);
+
+                            //if (ds.Tables.Count > 3)
+                            //    CopyBodyPosture_LastOrder(ds.Tables[3]);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 ExceptionLog(ex);
             }
-            return dtcommon;
+            return array;
+        }
+
+        public IEnumerable<CustomerMeasurement> CopyCommonMeasurement(int GarmentID)
+        {
+            List<CustomerMeasurement> customerMeasurements = new List<CustomerMeasurement>();
+            try
+            {
+                ObjDAL.SetStoreProcedureData("GarmentID", SqlDbType.Int, GarmentID, clsCoreApp.ParamType.Input);
+                DataSet dscommon = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".dbo.SPR_Get_CommonMeasurement");
+                if (dscommon != null && dscommon.Tables.Count > 0)
+                {
+                    DataTable dtcommon = dscommon.Tables[0];
+                    customerMeasurements = (from DataRow dr in dtcommon.Rows
+                            select new CustomerMeasurement()
+                            {
+                                GarmentID = Convert.ToInt32(dr["GarmentID"]),
+                                MeasurementID = Convert.ToInt32(dr["MeasurementID"]),
+                                MeasurementValue = 0
+                            }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionLog(ex);
+            }
+            return customerMeasurements;
         }
 
         [HttpPost]
@@ -293,7 +362,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
             {
                 SalesOrder salesorder = Newtonsoft.Json.JsonConvert.DeserializeObject<SalesOrder>(paramList[0].ToString());
 
-                return new Response { Result = true, Message = "Connection OK", Value = 1 };
+                return new Response { Result = true, Message = "Temporary Saved!", Value = 1 };
             }
             else
             {
@@ -314,7 +383,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
 
                 SalesOrderDetails OrderDetails = Newtonsoft.Json.JsonConvert.DeserializeObject<SalesOrderDetails>(paramList[3].ToString());
 
-                return new Response { Result = true, Message = "Connection OK", Value = 1 };
+                return new Response { Result = true, Message = "Temporary Saved !", Value = 1 };
             }
             else
             {

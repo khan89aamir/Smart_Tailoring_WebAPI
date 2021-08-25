@@ -175,7 +175,48 @@ namespace Smart_Tailoring_WebAPI.Controllers
             return lstFitType;
         }
 
-        public IEnumerable<clsGarmentRate> GetGarmentRate(int GarmentID, int ServiceType = 0)
+        [HttpPost]
+        public IEnumerable<SelectedGarments> GetGarmentRateListBySelectedGarment(ArrayList paramList)
+        {
+            List<SelectedGarments> lstSelected = new List<SelectedGarments>();
+            try
+            {
+                if (paramList.Count > 0)
+                {
+                    lstSelected = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SelectedGarments>>(paramList[0].ToString());
+
+                    DataTable dt = ObjDAL.ToDataTable(lstSelected);
+
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                        lstSelected = (from DataRow dr in dt.Rows
+                                       select new SelectedGarments()
+                                       {
+                                           GarmentID = Convert.ToInt32(dr["GarmentID"]),
+                                           Name = dr["Name"].ToString(),
+                                           Photo = dr["Photo"].ToString(),
+                                           GarmentCode = dr["GarmentCode"].ToString(),
+                                           QTY = Convert.ToInt32(dr["QTY"]),
+                                           OrderType = dr["OrderType"].ToString(),
+                                           OrderTypeID = Convert.ToInt32(dr["OrderTypeID"]),
+                                           Rate = Convert.ToDouble(dr["Rate"]),
+                                           TrimAmount = Convert.ToDouble(dr["TrimAmount"]),
+                                           IsTrail = Convert.ToBoolean(dr["IsTrail"]),
+                                           DeliveryDate = Convert.ToDateTime(dr["DeliveryDate"]),
+                                           TrailDate = Convert.ToDateTime(dr["TrailDate"]),
+                                           lstGarmentRate = GetGarmentRate(Convert.ToInt32(dr["GarmentID"]), 2)
+                                       }).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionLog(ex);
+            }
+            return lstSelected;
+        }
+
+        public List<clsGarmentRate> GetGarmentRate(int GarmentID, int ServiceType = 0)
         {
             //GarmentID = 0
             //ServiceType = 2 and it will return all garments rate data
@@ -200,9 +241,12 @@ namespace Smart_Tailoring_WebAPI.Controllers
                                           GarmentCodeName = dr["GarmentCodeName"].ToString(),
                                           GarmentType = dr["GarmentType"].ToString(),
                                           OrderType = dr["OrderType"].ToString(),
+                                          OrderTypeID = Convert.ToInt32(dr["OrderTypeID"]),
                                           Rate = Convert.ToDouble(dr["Rate"]),
                                           LastChange = Convert.ToInt32(dr["LastChange"])
                                       }).ToList();
+
+                    lstGarmentRate = lstGarmentRate.OrderBy(lst => lst.OrderTypeID).ToList();
                 }
             }
             catch (Exception ex)

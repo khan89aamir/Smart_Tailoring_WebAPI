@@ -15,6 +15,7 @@ namespace Smart_Tailoring_WebAPI.Models
         public string GarmentType { get; set; }
         public double Rate { get; set; }
         public string OrderType { get; set; }
+        public int OrderTypeID { get; set; }
         public int LastChange { get; set; }
     }
 }

@@ -186,6 +186,7 @@
     <Compile Include="Models\OrderModel\GarmentList.cs" />
     <Compile Include="Models\OrderModel\SalesOrder.cs" />
     <Compile Include="Models\OrderModel\SalesOrderDetails.cs" />
+    <Compile Include="Models\OrderModel\SelectedGarments.cs" />
     <Compile Include="Models\OrderModel\StichType.cs" />
     <Compile Include="Models\Response.cs" />
     <Compile Include="Models\UserManagement.cs" />

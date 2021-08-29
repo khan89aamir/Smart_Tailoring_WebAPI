@@ -5,10 +5,11 @@ using System.Web;
 
 namespace Smart_Tailoring_WebAPI.Models
 {
-    public class clsBodyPosture
+    public class clsImageList
     {
+        public int GarmentID { get; set; }
+        public int StyleID { get; set; }
         public int BodyPostureID { get; set; }
-        public string BodyPostureType { get; set; }
-        public List<clsImageList> lstImage { get; set; }
+        public string ImageURL { get; set; }
     }
 }

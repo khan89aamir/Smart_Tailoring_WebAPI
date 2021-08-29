@@ -10,5 +10,6 @@ namespace Smart_Tailoring_WebAPI.Models.OrderModel
         public int StyleID { get; set; }
         public string StyleName { get; set; }
         public bool IsMandatory { get; set; }
+        public List<clsImageList> lstImage { get; set; }
     }
 }

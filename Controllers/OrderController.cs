@@ -110,7 +110,37 @@ namespace Smart_Tailoring_WebAPI.Controllers
                                       select new clsBodyPosture()
                                       {
                                           BodyPostureID = Convert.ToInt32(dr["BodyPostureID"]),
-                                          BodyPostureType = dr["BodyPostureType"].ToString()
+                                          BodyPostureType = dr["BodyPostureType"].ToString(),
+                                          lstImage = GetBodyPostureImagesByBodyPostureID(GarmentID, Convert.ToInt32(dr["BodyPostureID"]))
+                                      }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                ExceptionLog(ex);
+            }
+            return lstBodyPosture;
+        }
+
+        private List<clsImageList> GetBodyPostureImagesByBodyPostureID(int pGarmentID, int BodyPostureID)
+        {
+            List<clsImageList> lstBodyPosture = new List<clsImageList>();
+            try
+            {
+                DataTable dtBodyPostureImages = new DataTable();
+                ObjDAL.SetStoreProcedureData("GarmentID", SqlDbType.Int, pGarmentID, clsCoreApp.ParamType.Input);
+                ObjDAL.SetStoreProcedureData("BodyPostureID", SqlDbType.Int, BodyPostureID, clsCoreApp.ParamType.Input);
+                DataSet ds = ObjDAL.ExecuteStoreProcedure_Get(strDBName + ".dbo.SPR_Get_BodyPosture_Images_ByGarmentID");
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    dtBodyPostureImages = ds.Tables[0];
+
+                    lstBodyPosture = (from DataRow dr in dtBodyPostureImages.Rows
+                                      select new clsImageList()
+                                      {
+                                          GarmentID = pGarmentID,
+                                          BodyPostureID = Convert.ToInt32(dr["BodyPostureID"]),
+                                          ImageURL = "/Images/" + dr["Photo1"].ToString()
                                       }).ToList();
                 }
             }
@@ -275,7 +305,7 @@ namespace Smart_Tailoring_WebAPI.Controllers
                                           GarmentID = Convert.ToInt32(dr["GarmentID"]),
                                           Name = dr["GarmentName"].ToString(),
                                           GarmentType = dr["GarmentType"].ToString(),
-                                          ImageURL = "/Images/Generic/"+dr["Photo1"].ToString(),
+                                          ImageURL = "/Images/Generic/" + dr["Photo1"].ToString(),
                                       }).ToList();
                 }
             }
@@ -385,12 +415,12 @@ namespace Smart_Tailoring_WebAPI.Controllers
                 {
                     DataTable dtcommon = dscommon.Tables[0];
                     customerMeasurements = (from DataRow dr in dtcommon.Rows
-                            select new CustomerMeasurement()
-                            {
-                                GarmentID = Convert.ToInt32(dr["GarmentID"]),
-                                MeasurementID = Convert.ToInt32(dr["MeasurementID"]),
-                                MeasurementValue = 0
-                            }).ToList();
+                                            select new CustomerMeasurement()
+                                            {
+                                                GarmentID = Convert.ToInt32(dr["GarmentID"]),
+                                                MeasurementID = Convert.ToInt32(dr["MeasurementID"]),
+                                                MeasurementValue = 0
+                                            }).ToList();
                 }
             }
             catch (Exception ex)

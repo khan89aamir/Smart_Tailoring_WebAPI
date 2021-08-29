@@ -178,6 +178,7 @@
     <Compile Include="Models\clsGarmentRate.cs" />
     <Compile Include="Models\clsMeasurment.cs" />
     <Compile Include="Models\clsStyle.cs" />
+    <Compile Include="Models\clsImageList.cs" />
     <Compile Include="Models\OrderModel\CustomerBodyPosture.cs" />
     <Compile Include="Models\OrderModel\CustomerMeasurement.cs" />
     <Compile Include="Models\OrderModel\CustomerStichFitType.cs" />
